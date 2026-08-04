@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Home | ML Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>&#127968; Welcome to the ML Dashboard</h2>
+    <p>This dashboard provides an interactive interface to explore the <strong>Placement Prediction Dataset (50,000 rows)</strong>. Use the sidebar to navigate between sections.</p>
+</div>
+
+<div class="card">
+    <h2>&#128202; Dataset Overview</h2>
+    <div class="stat-grid">
+        <div class="stat-box">
+            <h3>50,000</h3>
+            <p>Total Rows</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ num_cols }}</h3>
+            <p>Total Columns</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ numeric_count }}</h3>
+            <p>Numeric Columns</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ cat_count }}</h3>
+            <p>Categorical Columns</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>&#128196; Column List</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+        {% for col in columns %}
+        <span style="background: #eef3ff; color: #0f3460; padding: 6px 14px; border-radius: 20px; font-size: 0.88rem; border: 1px solid #c5d5f5; font-weight: 500;">{{ col }}</span>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <h2>&#128200; Quick Actions</h2>
+    <div style="display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px;">
+        <a href="{{ url_for('load_page') }}" class="btn btn-primary">&#128203; View Dataset</a>
+        <a href="{{ url_for('eda_page') }}" class="btn btn-primary">&#128200; Run EDA</a>
+    </div>
+</div>
+{% endblock %}

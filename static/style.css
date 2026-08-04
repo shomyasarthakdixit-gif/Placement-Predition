@@ -1,0 +1,337 @@
+/* =============================================
+   GLOBAL RESET & BASE
+   ============================================= */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* =============================================
+   HEADER
+   ============================================= */
+.header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    padding: 18px 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.header-inner h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.header-inner p {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    color: #a0c4ff;
+}
+
+/* =============================================
+   LAYOUT
+   ============================================= */
+.layout {
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - 120px);
+}
+
+/* =============================================
+   SIDEBAR
+   ============================================= */
+.sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: linear-gradient(180deg, #16213e 0%, #1a1a2e 100%);
+    padding: 25px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar h2 {
+    color: #a0c4ff;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #2a2a4a;
+    padding-bottom: 12px;
+}
+
+/* Sidebar Buttons */
+.menu-btn {
+    display: block;
+    text-decoration: none;
+    color: #cdd6f4;
+    background-color: rgba(255,255,255,0.05);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.92rem;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+.menu-btn:hover {
+    background-color: #0f3460;
+    color: #ffffff;
+    border-color: #4a90e2;
+    transform: translateX(4px);
+}
+
+/* =============================================
+   MAIN CONTENT
+   ============================================= */
+.content {
+    flex: 1;
+    padding: 28px;
+    overflow-x: auto;
+}
+
+/* =============================================
+   CARDS
+   ============================================= */
+.card {
+    background-color: #ffffff;
+    padding: 24px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    border: 1px solid #e8ecf0;
+}
+
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: #0f3460;
+    font-size: 1.25rem;
+    border-bottom: 2px solid #e8ecf0;
+    padding-bottom: 10px;
+}
+
+.card p {
+    color: #555;
+    line-height: 1.6;
+}
+
+/* =============================================
+   STAT BOXES (HOME PAGE)
+   ============================================= */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.stat-box {
+    background: linear-gradient(135deg, #0f3460, #16213e);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-box h3 {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+    color: #a0c4ff;
+}
+
+.stat-box p {
+    font-size: 0.85rem;
+    color: #cdd6f4;
+}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn {
+    display: inline-block;
+    text-decoration: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #0f3460, #1a7fcf);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1a7fcf, #0f3460);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26, 127, 207, 0.35);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    color: white;
+}
+
+.btn-danger:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.35);
+}
+
+/* =============================================
+   TABLES
+   ============================================= */
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e8ecf0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+}
+
+table thead th {
+    background: linear-gradient(135deg, #0f3460, #16213e);
+    color: #a0c4ff;
+    padding: 12px 14px;
+    text-align: left;
+    white-space: nowrap;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #f8f9fc;
+}
+
+table tbody tr:hover {
+    background-color: #eef3ff;
+}
+
+table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e8ecf0;
+    color: #444;
+}
+
+/* =============================================
+   PLOTS GRID
+   ============================================= */
+.plots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 24px;
+    margin-top: 12px;
+}
+
+.plot-card {
+    background: #f8f9fc;
+    border: 1px solid #e0e4ef;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+}
+
+.plot-card h4 {
+    color: #0f3460;
+    margin-bottom: 12px;
+    font-size: 1rem;
+}
+
+.plot-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* =============================================
+   EDA FORM
+   ============================================= */
+.eda-form {
+    background: #f8f9fc;
+    padding: 22px;
+    border-radius: 10px;
+    border: 1px solid #e0e4ef;
+    margin-bottom: 10px;
+}
+
+.eda-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+    font-size: 0.92rem;
+}
+
+.eda-form select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #c8d0e0;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    background: white;
+    color: #333;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.eda-form select:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+.footer {
+    text-align: center;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #a0c4ff;
+    padding: 16px;
+    font-size: 0.85rem;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media screen and (max-width: 700px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-width: unset;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 12px;
+        gap: 6px;
+    }
+
+    .sidebar h2 {
+        width: 100%;
+    }
+
+    .plots-grid {
+        grid-template-columns: 1fr;
+    }
+}

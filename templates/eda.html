@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}EDA | ML Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Dynamic EDA Form -->
+<div class="card">
+    <h2>&#9881; Interactive EDA Operations</h2>
+    <p style="margin-bottom:18px;">Select an operation below. Options not in the original EDA script are available here.</p>
+    <form method="POST" action="{{ url_for('eda_page') }}" class="eda-form">
+
+        <label for="operation">Select Operation:</label>
+        <select name="operation" id="operation" onchange="toggleInputs()">
+            <option value="summary_stats">Summary Statistics (describe)</option>
+            <option value="missing_values">Missing Values Check</option>
+            <option value="value_counts">Value Counts for a Column</option>
+            <option value="kde_plot">KDE Plot</option>
+            <option value="violin_plot">Violin Plot</option>
+        </select>
+
+        <!-- Value Counts Inputs -->
+        <div id="vc_inputs" style="display: none;">
+            <label for="col_vc">Select Column:</label>
+            <select name="col_vc" id="col_vc">
+                {% for col in all_cols %}
+                <option value="{{ col }}">{{ col }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- KDE Inputs -->
+        <div id="kde_inputs" style="display: none;">
+            <label for="col_kde">Select Numeric Column:</label>
+            <select name="col_kde" id="col_kde">
+                {% for col in numeric_cols %}
+                <option value="{{ col }}">{{ col }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Violin Inputs -->
+        <div id="violin_inputs" style="display: none;">
+            <label for="col_violin_x">X Axis (Categorical Column):</label>
+            <select name="col_violin_x" id="col_violin_x">
+                {% for col in categorical_cols %}
+                <option value="{{ col }}">{{ col }}</option>
+                {% endfor %}
+            </select>
+            <label for="col_violin_y">Y Axis (Numeric Column):</label>
+            <select name="col_violin_y" id="col_violin_y">
+                {% for col in numeric_cols %}
+                <option value="{{ col }}">{{ col }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="margin-top: 6px;">&#9654; Run Operation</button>
+    </form>
+</div>
+
+<!-- Dynamic Operation Output -->
+{% if eda_output %}
+<div class="card">
+    <h2>&#128203; Operation Result</h2>
+    <div class="table-wrapper">
+        {{ eda_output | safe }}
+    </div>
+</div>
+{% endif %}
+
+{% if dynamic_plot %}
+<div class="card">
+    <h2>&#128200; Generated Plot</h2>
+    <div style="text-align:center;">
+        <img src="data:image/png;base64,{{ dynamic_plot }}" alt="Dynamic Plot" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.12);">
+    </div>
+</div>
+{% endif %}
+
+<!-- Static Plots from EDA.py -->
+<div class="card">
+    <h2>&#128444; Static Plots (from EDA.py)</h2>
+    {% if static_plots %}
+    <div class="plots-grid">
+        {% for plot in static_plots %}
+        <div class="plot-card">
+            <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
+            <img src="{{ url_for('serve_plot', filename=plot) }}" alt="{{ plot }}">
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:#888;">No static plots found. Run <code>Source/EDA.py</code> first to generate plots in the <code>Output/plot</code> folder.</p>
+    {% endif %}
+</div>
+
+<script>
+    function toggleInputs() {
+        var op = document.getElementById('operation').value;
+        document.getElementById('kde_inputs').style.display    = (op === 'kde_plot')    ? 'block' : 'none';
+        document.getElementById('violin_inputs').style.display = (op === 'violin_plot') ? 'block' : 'none';
+        document.getElementById('vc_inputs').style.display     = (op === 'value_counts')? 'block' : 'none';
+    }
+    toggleInputs();
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ML Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-inner">
+        <h1>&#128202; ML Dataset Dashboard</h1>
+        <p>Dataset: <strong>Placement Prediction (50k)</strong></p>
+    </div>
+</header>
+
+<!-- Main Layout -->
+<div class="layout">
+
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+        <h2>Menu</h2>
+
+        <a href="{{ url_for('home') }}" class="menu-btn">&#127968; Home</a>
+        <a href="{{ url_for('load_page') }}" class="menu-btn">&#128203; Load Data</a>
+        <a href="{{ url_for('eda_page') }}" class="menu-btn">&#128200; EDA</a>
+        <a href="{{ url_for('feature_engg_page') }}" class="menu-btn">&#9881; Feature Engg</a>
+    </aside>
+
+    <!-- Page Content -->
+    <main class="content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>Machine Learning Dashboard &mdash; Flask Application</p>
+</footer>
+
+</body>
+</html>
