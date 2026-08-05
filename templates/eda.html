@@ -3,68 +3,232 @@
 
 {% block content %}
 
-<!-- Dynamic EDA Form -->
-<div class="card">
-    <h2>&#9881; Interactive EDA Operations</h2>
-    <p style="margin-bottom:18px;">Select an operation below. Options not in the original EDA script are available here.</p>
-    <form method="POST" action="{{ url_for('eda_page') }}" class="eda-form">
+<!-- ── Step 1: Choose Analysis Type ─────────────────────────── -->
+<div class="card" id="type-selector-card">
+    <h2>&#128200; Exploratory Data Analysis</h2>
+    <p style="margin-bottom: 22px; color: #555;">
+        Choose the type of analysis you want to perform. Each type reveals relevant graph and operation options.
+    </p>
 
-        <label for="operation">Select Operation:</label>
-        <select name="operation" id="operation" onchange="toggleInputs()">
-            <option value="summary_stats">Summary Statistics (describe)</option>
-            <option value="missing_values">Missing Values Check</option>
-            <option value="value_counts">Value Counts for a Column</option>
-            <option value="kde_plot">KDE Plot</option>
-            <option value="violin_plot">Violin Plot</option>
-        </select>
-
-        <!-- Value Counts Inputs -->
-        <div id="vc_inputs" style="display: none;">
-            <label for="col_vc">Select Column:</label>
-            <select name="col_vc" id="col_vc">
-                {% for col in all_cols %}
-                <option value="{{ col }}">{{ col }}</option>
-                {% endfor %}
-            </select>
+    <div class="eda-type-grid">
+        <!-- Univariate -->
+        <div class="eda-type-card" id="card-univariate" onclick="selectType('univariate')">
+            <div class="eda-type-icon">&#128202;</div>
+            <h3>Univariate Analysis</h3>
+            <p>Explore the distribution and characteristics of a <strong>single variable</strong> at a time.</p>
+            <ul class="eda-type-list">
+                <li>&#9632; Histogram — CGPA Distribution</li>
+                <li>&#9632; KDE Plot — Density Curve</li>
+                <li>&#9632; Pie Chart — Gender Distribution</li>
+                <li>&#9632; Count Plot — Placement Status</li>
+                <li>&#9632; Summary Statistics</li>
+                <li>&#9632; Missing Values Check</li>
+                <li>&#9632; Value Counts per Column</li>
+            </ul>
+            <div class="eda-type-badge">Single Variable</div>
         </div>
 
-        <!-- KDE Inputs -->
-        <div id="kde_inputs" style="display: none;">
-            <label for="col_kde">Select Numeric Column:</label>
-            <select name="col_kde" id="col_kde">
-                {% for col in numeric_cols %}
-                <option value="{{ col }}">{{ col }}</option>
-                {% endfor %}
-            </select>
+        <!-- Bivariate -->
+        <div class="eda-type-card" id="card-bivariate" onclick="selectType('bivariate')">
+            <div class="eda-type-icon">&#128201;</div>
+            <h3>Bivariate Analysis</h3>
+            <p>Explore the <strong>relationship between two variables</strong> and how they interact.</p>
+            <ul class="eda-type-list">
+                <li>&#9632; Scatter Plot — CGPA vs Attendance</li>
+                <li>&#9632; Box Plot — CGPA by Placement Status</li>
+                <li>&#9632; Violin Plot — Custom X vs Y</li>
+                <li>&#9632; Dot/Strip Plot — CGPA by Placement</li>
+                <li>&#9632; Gender vs Placement Count</li>
+                <li>&#9632; Correlation Heatmap</li>
+                <li>&#9632; Pair Plot (All Numeric)</li>
+            </ul>
+            <div class="eda-type-badge bivariate-badge">Two Variables</div>
         </div>
 
-        <!-- Violin Inputs -->
-        <div id="violin_inputs" style="display: none;">
-            <label for="col_violin_x">X Axis (Categorical Column):</label>
-            <select name="col_violin_x" id="col_violin_x">
-                {% for col in categorical_cols %}
-                <option value="{{ col }}">{{ col }}</option>
-                {% endfor %}
-            </select>
-            <label for="col_violin_y">Y Axis (Numeric Column):</label>
-            <select name="col_violin_y" id="col_violin_y">
-                {% for col in numeric_cols %}
-                <option value="{{ col }}">{{ col }}</option>
-                {% endfor %}
-            </select>
+        <!-- Multivariate -->
+        <div class="eda-type-card" id="card-multivariate" onclick="selectType('multivariate')">
+            <div class="eda-type-icon">&#127760;</div>
+            <h3>Multivariate Analysis</h3>
+            <p>Uncover <strong>complex patterns across multiple variables</strong> simultaneously.</p>
+            <ul class="eda-type-list">
+                <li>&#9632; Full Correlation Heatmap (all numeric)</li>
+                <li>&#9632; Custom Pairplot (select columns)</li>
+                <li>&#9632; Grouped Bar Chart (cat × hue)</li>
+                <li>&#9632; Box Plot with Grouping + Hue</li>
+                <li>&#9632; Strip Plot with Hue</li>
+                <li>&#9632; Facet Grid (numeric by category)</li>
+            </ul>
+            <div class="eda-type-badge multivariate-badge">3+ Variables</div>
         </div>
-
-        <button type="submit" class="btn btn-primary" style="margin-top: 6px;">&#9654; Run Operation</button>
-    </form>
+    </div>
 </div>
 
-<!-- Dynamic Operation Output -->
+<!-- ── Step 2: Operation Panel (shown after type is chosen) ─── -->
+<div id="operation-panel" style="display:none;">
+
+    <!-- Selected type banner -->
+    <div id="selected-type-banner" class="selected-type-banner">
+        <span id="banner-icon">&#128200;</span>
+        <span id="banner-text">Univariate Analysis</span>
+        <button class="btn-reset" onclick="resetType()">&#8592; Change Type</button>
+    </div>
+
+    <!-- ── Dynamic EDA Form ──────────────────────────────────── -->
+    <div class="card">
+        <h2 id="form-title">&#9881; Select Graph / Operation</h2>
+        <form method="POST" action="{{ url_for('eda_page') }}" class="eda-form" id="eda-main-form">
+            <input type="hidden" name="analysis_type" id="hidden_analysis_type" value="">
+
+            <label for="operation">Select Graph or Operation:</label>
+            <select name="operation" id="operation" onchange="toggleInputs()">
+                <!-- Options injected by JS based on type -->
+            </select>
+
+            <!-- ── Univariate: Value Counts ── -->
+            <div id="vc_inputs" style="display: none;">
+                <label for="col_vc">Select Column:</label>
+                <select name="col_vc" id="col_vc">
+                    {% for col in all_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ── Univariate: KDE ── -->
+            <div id="kde_inputs" style="display: none;">
+                <label for="col_kde">Select Numeric Column:</label>
+                <select name="col_kde" id="col_kde">
+                    {% for col in numeric_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ── Bivariate: Violin ── -->
+            <div id="violin_inputs" style="display: none;">
+                <label for="col_violin_x">X Axis (Categorical Column):</label>
+                <select name="col_violin_x" id="col_violin_x">
+                    {% for col in categorical_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+                <label for="col_violin_y">Y Axis (Numeric Column):</label>
+                <select name="col_violin_y" id="col_violin_y">
+                    {% for col in numeric_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ── Multivariate: Pairplot ── -->
+            <div id="mv_pairplot_inputs" style="display: none;">
+                <label>Select 2–5 Numeric Columns for Pairplot:</label>
+                <div class="mv-checkbox-grid">
+                    {% for col in numeric_cols %}
+                    {% if col not in ['StudentID','IsAnomaly','PlacementStatus'] %}
+                    <label class="mv-check-label">
+                        <input type="checkbox" name="mv_pairplot_cols" value="{{ col }}"> {{ col }}
+                    </label>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <small style="color:#888;">Select 2–5 columns. More than 5 may be slow.</small>
+            </div>
+
+            <!-- ── Multivariate: Grouped Bar ── -->
+            <div id="mv_grouped_bar_inputs" style="display: none;">
+                <label for="mv_bar_x">X Axis (Categorical):</label>
+                <select name="mv_bar_x" id="mv_bar_x">
+                    {% for col in categorical_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+                <label for="mv_bar_hue">Hue / Group By (Categorical):</label>
+                <select name="mv_bar_hue" id="mv_bar_hue">
+                    {% for col in categorical_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ── Multivariate: Box Group ── -->
+            <div id="mv_boxgroup_inputs" style="display: none;">
+                <label for="mv_box_num">Numeric Column (Y Axis):</label>
+                <select name="mv_box_num" id="mv_box_num">
+                    {% for col in numeric_cols %}
+                    {% if col not in ['StudentID','IsAnomaly'] %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <label for="mv_box_grp">Group By (X Axis, Categorical):</label>
+                <select name="mv_box_grp" id="mv_box_grp">
+                    {% for col in categorical_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+                <label for="mv_box_hue">Hue (optional, Categorical):</label>
+                <select name="mv_box_hue" id="mv_box_hue">
+                    <option value="">— None —</option>
+                    {% for col in categorical_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ── Multivariate: Strip Plot ── -->
+            <div id="mv_strip_inputs" style="display: none;">
+                <label for="mv_strip_x">X Axis (Categorical):</label>
+                <select name="mv_strip_x" id="mv_strip_x">
+                    {% for col in categorical_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+                <label for="mv_strip_y">Y Axis (Numeric):</label>
+                <select name="mv_strip_y" id="mv_strip_y">
+                    {% for col in numeric_cols %}
+                    {% if col not in ['StudentID','IsAnomaly'] %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <label for="mv_strip_hue">Hue (optional, Categorical):</label>
+                <select name="mv_strip_hue" id="mv_strip_hue">
+                    <option value="">— None —</option>
+                    {% for col in categorical_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ── Multivariate: Facet Grid ── -->
+            <div id="mv_facet_inputs" style="display: none;">
+                <label for="mv_facet_num">Numeric Column (Histogram):</label>
+                <select name="mv_facet_num" id="mv_facet_num">
+                    {% for col in numeric_cols %}
+                    {% if col not in ['StudentID','IsAnomaly'] %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <label for="mv_facet_row">Facet By (Categorical):</label>
+                <select name="mv_facet_row" id="mv_facet_row">
+                    {% for col in categorical_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top: 6px;">&#9654; Run Analysis</button>
+        </form>
+    </div>
+</div>
+
+<!-- ── Dynamic Operation Output ──────────────────────────────── -->
 {% if eda_output %}
 <div class="card">
     <h2>&#128203; Operation Result</h2>
-    <div class="table-wrapper">
-        {{ eda_output | safe }}
-    </div>
+    <div class="table-wrapper">{{ eda_output | safe }}</div>
 </div>
 {% endif %}
 
@@ -72,35 +236,311 @@
 <div class="card">
     <h2>&#128200; Generated Plot</h2>
     <div style="text-align:center;">
-        <img src="data:image/png;base64,{{ dynamic_plot }}" alt="Dynamic Plot" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.12);">
+        <img src="data:image/png;base64,{{ dynamic_plot }}" alt="Dynamic Plot"
+             style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.12);">
     </div>
 </div>
 {% endif %}
 
-<!-- Static Plots from EDA.py -->
+<!-- ── Static Plots, filtered by type ─────────────────────── -->
 <div class="card">
     <h2>&#128444; Static Plots (from EDA.py)</h2>
     {% if static_plots %}
-    <div class="plots-grid">
-        {% for plot in static_plots %}
-        <div class="plot-card">
-            <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
-            <img src="{{ url_for('serve_plot', filename=plot) }}" alt="{{ plot }}">
+
+    <!-- All plots (before type selected) -->
+    <div id="static-all">
+        <p style="color:#888; font-style: italic; margin-bottom:14px;">Select an analysis type above to filter plots by category.</p>
+        <div class="plots-grid">
+            {% for plot in static_plots %}
+            <div class="plot-card">
+                <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
+                <img src="{{ url_for('serve_plot', filename=plot) }}" alt="{{ plot }}">
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
+
+    <!-- Univariate -->
+    <div id="static-univariate" style="display:none;">
+        <p class="plot-section-label">&#128202; Univariate Plots</p>
+        <div class="plots-grid">
+            {% set univariate_plots = ['Histogram.png', 'PieChart.png', 'PlacementStatusCount.png'] %}
+            {% for plot in static_plots %}{% if plot in univariate_plots %}
+            <div class="plot-card">
+                <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
+                <img src="{{ url_for('serve_plot', filename=plot) }}" alt="{{ plot }}">
+            </div>
+            {% endif %}{% endfor %}
+        </div>
+    </div>
+
+    <!-- Bivariate -->
+    <div id="static-bivariate" style="display:none;">
+        <p class="plot-section-label">&#128201; Bivariate Plots</p>
+        <div class="plots-grid">
+            {% set bivariate_plots = ['ScatterPlot.png', 'BoxPlot.png', 'GendervsPlacementCount.png', 'DotPlot.png'] %}
+            {% for plot in static_plots %}{% if plot in bivariate_plots %}
+            <div class="plot-card">
+                <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
+                <img src="{{ url_for('serve_plot', filename=plot) }}" alt="{{ plot }}">
+            </div>
+            {% endif %}{% endfor %}
+        </div>
+    </div>
+
+    <!-- Multivariate -->
+    <div id="static-multivariate" style="display:none;">
+        <p class="plot-section-label">&#127760; Multivariate Plots</p>
+        <div class="plots-grid">
+            {% set multivariate_plots = ['CorrelationMatrix.png', 'PairPlot.png'] %}
+            {% for plot in static_plots %}{% if plot in multivariate_plots %}
+            <div class="plot-card">
+                <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
+                <img src="{{ url_for('serve_plot', filename=plot) }}" alt="{{ plot }}">
+            </div>
+            {% endif %}{% endfor %}
+        </div>
+    </div>
+
     {% else %}
-    <p style="color:#888;">No static plots found. Run <code>Source/EDA.py</code> first to generate plots in the <code>Output/plot</code> folder.</p>
+    <p style="color:#888;">No static plots found. Run <code>Source/EDA.py</code> first.</p>
     {% endif %}
 </div>
 
+
+<!-- ── Styles ──────────────────────────────────────────────── -->
+<style>
+/* Type Selection Grid — now 3 cols */
+.eda-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 4px;
+}
+@media (max-width: 900px) { .eda-type-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .eda-type-grid { grid-template-columns: 1fr; } }
+
+.eda-type-card {
+    background: linear-gradient(135deg, #f8f9fc 0%, #eef3ff 100%);
+    border: 2px solid #d0daf5;
+    border-radius: 14px;
+    padding: 24px 20px 18px;
+    cursor: pointer;
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+}
+.eda-type-card:hover {
+    border-color: #1a7fcf;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(26,127,207,0.2);
+}
+.eda-type-card.selected {
+    border-color: #0f3460;
+    background: linear-gradient(135deg, #0f3460 0%, #1a7fcf 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(15,52,96,0.35);
+}
+.eda-type-card.selected h3,
+.eda-type-card.selected p,
+.eda-type-card.selected li { color: #e8f0ff !important; }
+
+.eda-type-icon { font-size: 2.2rem; margin-bottom: 10px; display: block; }
+.eda-type-card h3 { font-size: 1.08rem; font-weight: 700; color: #0f3460; margin-bottom: 7px; }
+.eda-type-card p  { font-size: 0.85rem; color: #555; margin-bottom: 12px; line-height: 1.5; }
+
+.eda-type-list { list-style: none; padding: 0; margin: 0 0 12px; }
+.eda-type-list li { font-size: 0.81rem; color: #444; padding: 2px 0; line-height: 1.4; }
+
+.eda-type-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #0f3460, #1a7fcf);
+    color: white; padding: 3px 11px; border-radius: 20px;
+    font-size: 0.74rem; font-weight: 600; letter-spacing: 0.4px;
+}
+.bivariate-badge    { background: linear-gradient(135deg, #7b2ff7, #c850c0); }
+.multivariate-badge { background: linear-gradient(135deg, #00b4d8, #007f5f); }
+
+.eda-type-card.selected .eda-type-badge { background: rgba(255,255,255,0.25); }
+
+/* Banner */
+.selected-type-banner {
+    display: flex; align-items: center; gap: 14px;
+    background: linear-gradient(135deg, #0f3460, #1a7fcf);
+    color: white; padding: 14px 22px; border-radius: 10px;
+    margin-bottom: 18px; font-size: 1.05rem; font-weight: 600;
+    animation: slideDown 0.3s ease;
+}
+.selected-type-banner span:first-child { font-size: 1.6rem; }
+.btn-reset {
+    margin-left: auto;
+    background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.4);
+    color: white; padding: 6px 14px; border-radius: 8px;
+    cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;
+}
+.btn-reset:hover { background: rgba(255,255,255,0.3); }
+
+@keyframes slideDown {
+    from { opacity:0; transform:translateY(-12px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+
+/* Multivariate checkbox grid */
+.mv-checkbox-grid {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin: 8px 0 10px; padding: 14px;
+    background: #f0f4ff; border-radius: 8px; border: 1px solid #d0daf5;
+}
+.mv-check-label {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 12px; background: white;
+    border: 1px solid #c5d5f5; border-radius: 20px;
+    font-size: 0.82rem; font-weight: 500; color: #333;
+    cursor: pointer; transition: all 0.18s;
+}
+.mv-check-label:hover { background: #eef3ff; border-color: #1a7fcf; }
+.mv-check-label input[type="checkbox"] { accent-color: #1a7fcf; }
+
+.plot-section-label {
+    font-size: 1rem; font-weight: 700; color: #0f3460;
+    margin-bottom: 14px; padding: 8px 14px;
+    background: #eef3ff; border-left: 4px solid #1a7fcf; border-radius: 4px;
+}
+</style>
+
+
+<!-- ── JavaScript ─────────────────────────────────────────── -->
 <script>
-    function toggleInputs() {
-        var op = document.getElementById('operation').value;
-        document.getElementById('kde_inputs').style.display    = (op === 'kde_plot')    ? 'block' : 'none';
-        document.getElementById('violin_inputs').style.display = (op === 'violin_plot') ? 'block' : 'none';
-        document.getElementById('vc_inputs').style.display     = (op === 'value_counts')? 'block' : 'none';
-    }
+const univariateOptions = [
+    { value: 'static_histogram',       label: '📊 Histogram — CGPA Distribution' },
+    { value: 'kde_plot',               label: '〰️ KDE Plot — Density Curve (Custom Column)' },
+    { value: 'static_piechart',        label: '🥧 Pie Chart — Gender Distribution' },
+    { value: 'static_placementstatus', label: '📈 Count Plot — Placement Status Distribution' },
+    { value: 'summary_stats',          label: '📋 Summary Statistics (describe)' },
+    { value: 'missing_values',         label: '❓ Missing Values Check' },
+    { value: 'value_counts',           label: '🔢 Value Counts for a Column' },
+];
+
+const bivariateOptions = [
+    { value: 'static_scatter',      label: '🔵 Scatter Plot — CGPA vs Attendance' },
+    { value: 'static_boxplot',      label: '📦 Box Plot — CGPA by Placement Status' },
+    { value: 'violin_plot',         label: '🎻 Violin Plot — Custom X vs Y' },
+    { value: 'static_dotplot',      label: '🟣 Dot/Strip Plot — CGPA by Placement' },
+    { value: 'static_gendercount',  label: '👫 Gender vs Placement Count Plot' },
+    { value: 'static_correlation',  label: '🌡️ Correlation Heatmap (static)' },
+    { value: 'static_pairplot',     label: '🔗 Pair Plot (static)' },
+];
+
+const multivariateOptions = [
+    { value: 'mv_heatmap',       label: '🌡️ Full Correlation Heatmap (interactive)' },
+    { value: 'mv_pairplot',      label: '🔗 Custom Pairplot (select columns + hue)' },
+    { value: 'mv_grouped_bar',   label: '📊 Grouped Bar Chart (Category × Hue)' },
+    { value: 'mv_boxgroup',      label: '📦 Box Plot with Group + Hue' },
+    { value: 'mv_strip',         label: '🟣 Strip Plot with Hue' },
+    { value: 'mv_facet',         label: '🗂️ Facet Grid (Numeric by Category)' },
+];
+
+const bannerMeta = {
+    univariate:   { icon: '📊', text: 'Univariate Analysis — Single Variable',      bg: 'linear-gradient(135deg,#0f3460,#1a7fcf)' },
+    bivariate:    { icon: '📈', text: 'Bivariate Analysis — Two Variables',          bg: 'linear-gradient(135deg,#7b2ff7,#c850c0)' },
+    multivariate: { icon: '🌐', text: 'Multivariate Analysis — 3+ Variables',        bg: 'linear-gradient(135deg,#00b4d8,#007f5f)' },
+};
+
+const mvExtraInputs = {
+    mv_pairplot:    'mv_pairplot_inputs',
+    mv_grouped_bar: 'mv_grouped_bar_inputs',
+    mv_boxgroup:    'mv_boxgroup_inputs',
+    mv_strip:       'mv_strip_inputs',
+    mv_facet:       'mv_facet_inputs',
+};
+
+let currentType = null;
+
+function selectType(type) {
+    currentType = type;
+    ['univariate','bivariate','multivariate'].forEach(t =>
+        document.getElementById('card-'+t).classList.toggle('selected', t === type)
+    );
+
+    // Banner
+    const m = bannerMeta[type];
+    document.getElementById('banner-icon').textContent = m.icon;
+    document.getElementById('banner-text').textContent = m.text;
+    document.getElementById('selected-type-banner').style.background = m.bg;
+
+    // Populate dropdown
+    const sel = document.getElementById('operation');
+    sel.innerHTML = '';
+    const opts = type === 'univariate' ? univariateOptions
+                : type === 'bivariate' ? bivariateOptions
+                : multivariateOptions;
+    opts.forEach(o => {
+        const el = document.createElement('option');
+        el.value = o.value; el.textContent = o.label;
+        sel.appendChild(el);
+    });
+
+    document.getElementById('hidden_analysis_type').value = type;
+    document.getElementById('operation-panel').style.display = 'block';
+
+    // Filter static plots
+    document.getElementById('static-all').style.display = 'none';
+    document.getElementById('static-univariate').style.display   = (type === 'univariate')   ? 'block' : 'none';
+    document.getElementById('static-bivariate').style.display    = (type === 'bivariate')    ? 'block' : 'none';
+    document.getElementById('static-multivariate').style.display = (type === 'multivariate') ? 'block' : 'none';
+
     toggleInputs();
+    setTimeout(() => document.getElementById('operation-panel').scrollIntoView({ behavior:'smooth', block:'start' }), 100);
+}
+
+function resetType() {
+    currentType = null;
+    ['univariate','bivariate','multivariate'].forEach(t =>
+        document.getElementById('card-'+t).classList.remove('selected')
+    );
+    document.getElementById('operation-panel').style.display = 'none';
+    document.getElementById('static-all').style.display = 'block';
+    ['static-univariate','static-bivariate','static-multivariate'].forEach(id =>
+        document.getElementById(id).style.display = 'none'
+    );
+    window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function toggleInputs() {
+    const op = document.getElementById('operation')?.value || '';
+
+    // Hide all extra inputs first
+    ['kde_inputs','vc_inputs','violin_inputs',
+     'mv_pairplot_inputs','mv_grouped_bar_inputs',
+     'mv_boxgroup_inputs','mv_strip_inputs','mv_facet_inputs'
+    ].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+
+    // Show relevant ones
+    if (op === 'kde_plot')     document.getElementById('kde_inputs').style.display    = 'block';
+    if (op === 'value_counts') document.getElementById('vc_inputs').style.display     = 'block';
+    if (op === 'violin_plot')  document.getElementById('violin_inputs').style.display = 'block';
+    if (mvExtraInputs[op]) {
+        const el = document.getElementById(mvExtraInputs[op]);
+        if (el) el.style.display = 'block';
+    }
+}
+
+// Restore state after POST submit
+window.addEventListener('DOMContentLoaded', () => {
+    const savedType = "{{ request.form.get('analysis_type', '') }}";
+    if (['univariate','bivariate','multivariate'].includes(savedType)) {
+        selectType(savedType);
+        const savedOp = "{{ request.form.get('operation', '') }}";
+        if (savedOp) {
+            const sel = document.getElementById('operation');
+            for (let opt of sel.options) {
+                if (opt.value === savedOp) { sel.value = savedOp; break; }
+            }
+            toggleInputs();
+        }
+    }
+});
 </script>
+
 {% endblock %}

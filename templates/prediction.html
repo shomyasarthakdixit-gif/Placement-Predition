@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+{% block title %}Predict Placement | ML Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero ─────────────────────────────────────────────────── -->
+<div class="pred-hero">
+    <div class="pred-hero-inner">
+        <div class="pred-hero-badge">&#129302; AI-Powered Prediction</div>
+        <h1>Student Placement Predictor</h1>
+        <p>Fill in the student profile below. Our <strong>Random Forest model</strong> (trained on 50,000 records)
+           will predict whether the student will be <strong>placed</strong> and estimate the
+           <strong>salary package</strong> if placed.</p>
+    </div>
+</div>
+
+<!-- ── Result Card (shown after POST) ───────────────────────── -->
+{% if result %}
+<div class="result-card {% if result.error %}result-error{% elif result.placed %}result-placed{% else %}result-notplaced{% endif %}"
+     id="result-anchor">
+
+    {% if result.error %}
+    <div class="result-icon">&#9888;</div>
+    <h2>Prediction Error</h2>
+    <p>{{ result.error }}</p>
+
+    {% elif result.placed %}
+    <div class="result-confetti" id="confetti-area"></div>
+    <div class="result-icon">&#127881;</div>
+    <h2>Congratulations! Student is <span class="highlight-placed">PLACED</span></h2>
+    <div class="result-metrics">
+        <div class="result-metric">
+            <span class="metric-val">{{ result.placed_prob }}%</span>
+            <span class="metric-lbl">Placement Probability</span>
+        </div>
+        <div class="result-metric highlight-salary">
+            <span class="metric-val">&#8377; {{ result.salary }} LPA</span>
+            <span class="metric-lbl">Estimated Salary Package</span>
+        </div>
+    </div>
+    <div class="prob-bar-wrap">
+        <div class="prob-bar-label">Confidence</div>
+        <div class="prob-bar-track">
+            <div class="prob-bar-fill placed-fill" style="width: {{ result.placed_prob }}%;">
+                {{ result.placed_prob }}%
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="result-icon">&#128549;</div>
+    <h2>Student is <span class="highlight-notplaced">NOT PLACED</span></h2>
+    <div class="result-metrics">
+        <div class="result-metric">
+            <span class="metric-val">{{ result.placed_prob }}%</span>
+            <span class="metric-lbl">Placement Probability</span>
+        </div>
+        <div class="result-metric">
+            <span class="metric-val">{{ 100 - result.placed_prob }}%</span>
+            <span class="metric-lbl">Not-Placed Probability</span>
+        </div>
+    </div>
+    <div class="prob-bar-wrap">
+        <div class="prob-bar-label">Placement Chance</div>
+        <div class="prob-bar-track">
+            <div class="prob-bar-fill notplaced-fill" style="width: {{ result.placed_prob }}%;">
+                {{ result.placed_prob }}%
+            </div>
+        </div>
+    </div>
+    <p class="result-tip">&#128161; Tip: Improve CGPA, Aptitude Score, and Internship experience to boost placement chances.</p>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- ── Input Form ────────────────────────────────────────────── -->
+<div class="card">
+    <h2>&#128203; Student Profile Input</h2>
+    <form method="POST" action="{{ url_for('predict_page') }}" class="pred-form" id="pred-form">
+
+        <!-- SECTION: Personal & College Info -->
+        <div class="pred-section">
+            <div class="pred-section-title">&#127891; Personal &amp; College Information</div>
+            <div class="pred-grid">
+                <div class="pred-field">
+                    <label for="Gender">Gender</label>
+                    <select name="Gender" id="Gender">
+                        {% for v in gender_vals %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="pred-field">
+                    <label for="City">City</label>
+                    <select name="City" id="City">
+                        {% for v in city_vals %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="pred-field">
+                    <label for="CollegeTier">College Tier</label>
+                    <select name="CollegeTier" id="CollegeTier">
+                        {% for v in college_tier_vals %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="pred-field">
+                    <label for="Stream">Stream / Branch</label>
+                    <select name="Stream" id="Stream">
+                        {% for v in stream_vals %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="pred-field">
+                    <label for="Specialisation">Specialisation</label>
+                    <select name="Specialisation" id="Specialisation">
+                        {% for v in spec_vals %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="pred-field">
+                    <label for="Hostel">Hostel Resident?</label>
+                    <select name="Hostel" id="Hostel">
+                        {% for v in hostel_vals %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="pred-field">
+                    <label for="HistoryOfBacklogs">History of Backlogs?</label>
+                    <select name="HistoryOfBacklogs" id="HistoryOfBacklogs">
+                        {% for v in backlog_vals %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: Academic Performance -->
+        <div class="pred-section">
+            <div class="pred-section-title">&#128218; Academic Performance</div>
+            <div class="pred-grid">
+                <div class="pred-field">
+                    <label for="CGPA">CGPA (0–10)</label>
+                    <input type="number" name="CGPA" id="CGPA" step="0.01" min="0" max="10" placeholder="e.g. 7.85" required>
+                </div>
+                <div class="pred-field">
+                    <label for="AttendancePercent">Attendance % (0–100)</label>
+                    <input type="number" name="AttendancePercent" id="AttendancePercent" step="0.1" min="0" max="100" placeholder="e.g. 82.5" required>
+                </div>
+                {% set sgpa_fields = ['SGPA_Sem1','SGPA_Sem2','SGPA_Sem3','SGPA_Sem4','SGPA_Sem5','SGPA_Sem6','SGPA_Sem7','SGPA_Sem8'] %}
+                {% for s in sgpa_fields %}
+                <div class="pred-field">
+                    <label for="{{ s }}">{{ s | replace('_', ' ') }} (0–10)</label>
+                    <input type="number" name="{{ s }}" id="{{ s }}" step="0.01" min="0" max="10" placeholder="e.g. 7.5">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- SECTION: Skills & Activities -->
+        <div class="pred-section">
+            <div class="pred-section-title">&#128170; Skills, Tests &amp; Extra Activities</div>
+            <div class="pred-grid">
+                <div class="pred-field">
+                    <label for="Internships">No. of Internships</label>
+                    <input type="number" name="Internships" id="Internships" min="0" max="10" placeholder="e.g. 2">
+                </div>
+                <div class="pred-field">
+                    <label for="Projects">No. of Projects</label>
+                    <input type="number" name="Projects" id="Projects" min="0" max="20" placeholder="e.g. 4">
+                </div>
+                <div class="pred-field">
+                    <label for="Workshops">No. of Workshops</label>
+                    <input type="number" name="Workshops" id="Workshops" min="0" max="20" placeholder="e.g. 3">
+                </div>
+                <div class="pred-field">
+                    <label for="Certifications">No. of Certifications</label>
+                    <input type="number" name="Certifications" id="Certifications" min="0" max="30" placeholder="e.g. 5">
+                </div>
+                <div class="pred-field">
+                    <label for="Publications">No. of Publications</label>
+                    <input type="number" name="Publications" id="Publications" min="0" max="20" placeholder="e.g. 1">
+                </div>
+                <div class="pred-field">
+                    <label for="ExtraCurricular">Extra-Curricular Activities</label>
+                    <input type="number" name="ExtraCurricular" id="ExtraCurricular" min="0" max="20" placeholder="e.g. 2">
+                </div>
+                <div class="pred-field">
+                    <label for="AptitudeTestScore">Aptitude Test Score (0–100)</label>
+                    <input type="number" name="AptitudeTestScore" id="AptitudeTestScore" step="0.1" min="0" max="100" placeholder="e.g. 72.5">
+                </div>
+                <div class="pred-field">
+                    <label for="SoftSkillsRating">Soft Skills Rating (1–5)</label>
+                    <input type="number" name="SoftSkillsRating" id="SoftSkillsRating" step="0.1" min="1" max="5" placeholder="e.g. 4.0">
+                </div>
+                <div class="pred-field">
+                    <label for="CodingTestScore">Coding Test Score (0–100)</label>
+                    <input type="number" name="CodingTestScore" id="CodingTestScore" step="0.1" min="0" max="100" placeholder="e.g. 68.0">
+                </div>
+                <div class="pred-field">
+                    <label for="MockInterviewScore">Mock Interview Score (0–10)</label>
+                    <input type="number" name="MockInterviewScore" id="MockInterviewScore" step="0.1" min="0" max="10" placeholder="e.g. 7.2">
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 10px;">
+            <button type="submit" class="btn-predict">&#129302; Predict Placement &amp; Package</button>
+        </div>
+    </form>
+</div>
+
+<!-- ── Feature Importance Card ──────────────────────────────── -->
+{% if feature_importance %}
+<div class="card">
+    <h2>&#128200; Top Features Influencing Placement</h2>
+    <p style="color:#666; margin-bottom:16px;">Based on the Random Forest model's feature importances (top 12):</p>
+    <div class="fi-list">
+        {% for fi in feature_importance %}
+        <div class="fi-row">
+            <span class="fi-name">{{ fi.name }}</span>
+            <div class="fi-bar-track">
+                <div class="fi-bar-fill" style="width: {{ fi.pct * 3 | min(100) }}%"></div>
+            </div>
+            <span class="fi-pct">{{ fi.pct }}%</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+
+<!-- ── Styles ─────────────────────────────────────────────── -->
+<style>
+/* Hero */
+.pred-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 16px; padding: 36px 32px; margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(15,52,96,0.3);
+    position: relative; overflow: hidden;
+}
+.pred-hero::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(circle at 80% 50%, rgba(26,127,207,0.15) 0%, transparent 60%);
+}
+.pred-hero-inner { position:relative; z-index:1; }
+.pred-hero-badge {
+    display:inline-block; background:rgba(160,196,255,0.15);
+    border:1px solid rgba(160,196,255,0.35); color:#a0c4ff;
+    padding:4px 14px; border-radius:20px; font-size:0.78rem;
+    font-weight:600; letter-spacing:0.5px; margin-bottom:12px;
+}
+.pred-hero h1 { font-size:1.7rem; font-weight:800; color:white; margin-bottom:10px; }
+.pred-hero p  { font-size:0.92rem; color:#cdd6f4; line-height:1.7; max-width:640px; }
+
+/* Result Card */
+.result-card {
+    border-radius: 16px; padding: 36px 32px; margin-bottom: 24px;
+    text-align: center; position: relative; overflow: hidden;
+    animation: fadeInUp 0.5s ease;
+}
+@keyframes fadeInUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+}
+.result-placed    { background: linear-gradient(135deg,#e8fff5,#d0f5e8); border: 2px solid #27ae60; }
+.result-notplaced { background: linear-gradient(135deg,#fff5f5,#ffe0e0); border: 2px solid #e74c3c; }
+.result-error     { background: #fff8e1; border: 2px solid #f39c12; }
+
+.result-icon { font-size: 3.5rem; margin-bottom: 12px; display: block; }
+.result-card h2 { font-size: 1.5rem; font-weight: 800; color: #1a1a2e; margin-bottom: 20px; }
+.highlight-placed    { color: #27ae60; }
+.highlight-notplaced { color: #e74c3c; }
+
+.result-metrics {
+    display: flex; justify-content: center; gap: 28px;
+    flex-wrap: wrap; margin-bottom: 22px;
+}
+.result-metric {
+    background: rgba(255,255,255,0.7); border-radius: 12px;
+    padding: 16px 24px; backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.9);
+    min-width: 160px;
+}
+.highlight-salary { background: linear-gradient(135deg,#0f3460,#1a7fcf) !important; }
+.highlight-salary .metric-val,
+.highlight-salary .metric-lbl { color: white !important; }
+
+.metric-val { display:block; font-size:1.6rem; font-weight:800; color:#0f3460; }
+.metric-lbl { display:block; font-size:0.8rem; color:#666; margin-top:4px; font-weight:500; }
+
+.prob-bar-wrap { max-width: 420px; margin: 0 auto; }
+.prob-bar-label { font-size:0.85rem; font-weight:600; color:#555; margin-bottom:6px; text-align:left; }
+.prob-bar-track {
+    height: 28px; background: #e8ecf0; border-radius: 14px; overflow: hidden;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+}
+.prob-bar-fill {
+    height: 100%; border-radius: 14px; display:flex; align-items:center;
+    justify-content:flex-end; padding-right:10px;
+    font-size:0.82rem; font-weight:700; color:white;
+    transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
+}
+.placed-fill    { background: linear-gradient(90deg,#27ae60,#2ecc71); }
+.notplaced-fill { background: linear-gradient(90deg,#e74c3c,#c0392b); }
+
+.result-tip {
+    margin-top: 18px; padding: 12px 18px;
+    background: rgba(255,255,255,0.6); border-radius: 10px;
+    font-size: 0.88rem; color: #555; border: 1px solid rgba(255,255,255,0.9);
+}
+
+/* Form */
+.pred-form { }
+
+.pred-section {
+    margin-bottom: 28px;
+    border: 1px solid #e8ecf0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.pred-section-title {
+    background: linear-gradient(135deg,#0f3460,#16213e);
+    color: white; padding: 12px 20px;
+    font-size: 0.95rem; font-weight: 700; letter-spacing: 0.3px;
+}
+.pred-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; padding: 20px;
+    background: #fafbfe;
+}
+.pred-field label {
+    display: block; font-size: 0.82rem; font-weight: 600;
+    color: #444; margin-bottom: 5px;
+}
+.pred-field input,
+.pred-field select {
+    width: 100%; padding: 9px 12px;
+    border: 1.5px solid #d0daf5; border-radius: 8px;
+    font-size: 0.88rem; background: white; color: #333;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.pred-field input:focus,
+.pred-field select:focus {
+    border-color: #1a7fcf;
+    box-shadow: 0 0 0 3px rgba(26,127,207,0.12);
+}
+
+.btn-predict {
+    background: linear-gradient(135deg,#0f3460,#1a7fcf);
+    color: white; border: none; padding: 14px 40px;
+    border-radius: 50px; font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; transition: all 0.25s ease;
+    box-shadow: 0 6px 20px rgba(26,127,207,0.35);
+    letter-spacing: 0.4px;
+}
+.btn-predict:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(26,127,207,0.5);
+    background: linear-gradient(135deg,#1a7fcf,#0f3460);
+}
+.btn-predict:active { transform: translateY(0); }
+
+/* Feature Importance */
+.fi-list { display: flex; flex-direction: column; gap: 10px; }
+.fi-row {
+    display: flex; align-items: center; gap: 12px;
+}
+.fi-name {
+    width: 200px; min-width: 200px; font-size: 0.85rem;
+    font-weight: 600; color: #333; text-align: right;
+}
+.fi-bar-track {
+    flex: 1; height: 22px; background: #eef3ff;
+    border-radius: 11px; overflow: hidden;
+}
+.fi-bar-fill {
+    height: 100%; background: linear-gradient(90deg,#0f3460,#1a7fcf);
+    border-radius: 11px; transition: width 1s ease;
+}
+.fi-pct {
+    width: 46px; font-size: 0.82rem; font-weight: 700;
+    color: #0f3460; text-align: left;
+}
+
+/* Confetti effect (pure CSS) */
+.result-confetti {
+    position:absolute; top:0; left:0; right:0; bottom:0;
+    pointer-events:none; overflow:hidden;
+}
+</style>
+
+<script>
+// Auto-scroll to result if present
+window.addEventListener('DOMContentLoaded', () => {
+    const anchor = document.getElementById('result-anchor');
+    if (anchor) {
+        setTimeout(() => anchor.scrollIntoView({ behavior:'smooth', block:'center' }), 200);
+    }
+
+    // Animate bar fill from 0 on page load
+    document.querySelectorAll('.prob-bar-fill, .fi-bar-fill').forEach(el => {
+        const finalWidth = el.style.width;
+        el.style.width = '0%';
+        setTimeout(() => { el.style.width = finalWidth; }, 300);
+    });
+});
+</script>
+
+{% endblock %}

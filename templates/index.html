@@ -1,48 +1,529 @@
 {% extends "base.html" %}
-{% block title %}Home | ML Dashboard{% endblock %}
+{% block title %}Dashboard | ML Placement Prediction{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>&#127968; Welcome to the ML Dashboard</h2>
-    <p>This dashboard provides an interactive interface to explore the <strong>Placement Prediction Dataset (50,000 rows)</strong>. Use the sidebar to navigate between sections.</p>
-</div>
 
-<div class="card">
-    <h2>&#128202; Dataset Overview</h2>
-    <div class="stat-grid">
-        <div class="stat-box">
-            <h3>50,000</h3>
-            <p>Total Rows</p>
+<!-- ── Hero Banner ─────────────────────────────────────────── -->
+<div class="dash-hero">
+    <div class="dash-hero-content">
+        <div class="dash-hero-badge">&#127891; Machine Learning Project</div>
+        <h1 class="dash-hero-title">Placement Prediction <span class="dash-accent">Dashboard</span></h1>
+        <p class="dash-hero-sub">
+            An end-to-end ML pipeline to predict student placement outcomes from academic, skills, and socio-demographic data —
+            featuring interactive EDA, feature engineering, and predictive modelling on <strong>50,000 student records</strong>.
+        </p>
+        <div class="dash-hero-actions">
+            <a href="{{ url_for('load_page') }}" class="btn btn-primary">&#128203; Explore Dataset</a>
+            <a href="{{ url_for('eda_page') }}" class="btn btn-secondary">&#128200; Run EDA</a>
         </div>
-        <div class="stat-box">
-            <h3>{{ num_cols }}</h3>
-            <p>Total Columns</p>
-        </div>
-        <div class="stat-box">
-            <h3>{{ numeric_count }}</h3>
-            <p>Numeric Columns</p>
-        </div>
-        <div class="stat-box">
-            <h3>{{ cat_count }}</h3>
-            <p>Categorical Columns</p>
+    </div>
+    <div class="dash-hero-visual">
+        <div class="dash-orb dash-orb-1"></div>
+        <div class="dash-orb dash-orb-2"></div>
+        <div class="dash-orb dash-orb-3"></div>
+        <div class="dash-kpi-float">
+            <div class="kpi-item"><span>98.2%</span><small>Model Accuracy</small></div>
+            <div class="kpi-item"><span>50K</span><small>Records</small></div>
+            <div class="kpi-item"><span>{{ num_cols }}</span><small>Features</small></div>
         </div>
     </div>
 </div>
 
+<!-- ── Dataset Overview Stats ──────────────────────────────── -->
 <div class="card">
-    <h2>&#128196; Column List</h2>
-    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
+    <h2>&#128202; Dataset Overview</h2>
+    <div class="stat-grid">
+        <div class="stat-box stat-blue">
+            <div class="stat-icon">&#128221;</div>
+            <h3>50,000</h3>
+            <p>Total Rows</p>
+        </div>
+        <div class="stat-box stat-purple">
+            <div class="stat-icon">&#128193;</div>
+            <h3>{{ num_cols }}</h3>
+            <p>Total Columns</p>
+        </div>
+        <div class="stat-box stat-teal">
+            <div class="stat-icon">&#128290;</div>
+            <h3>{{ numeric_count }}</h3>
+            <p>Numeric Features</p>
+        </div>
+        <div class="stat-box stat-orange">
+            <div class="stat-icon">&#127381;</div>
+            <h3>{{ cat_count }}</h3>
+            <p>Categorical Features</p>
+        </div>
+    </div>
+</div>
+
+<!-- ── What This Project Does ──────────────────────────────── -->
+<div class="card">
+    <h2>&#9989; What This Project Does</h2>
+    <div class="ops-grid">
+
+        <div class="ops-tile ops-blue">
+            <div class="ops-tile-icon">&#128200;</div>
+            <h4>Exploratory Data Analysis</h4>
+            <ul>
+                <li>Univariate analysis — distributions, counts, pie charts</li>
+                <li>Bivariate analysis — scatter, box, violin, dot plots</li>
+                <li>Correlation heatmap & pair plots</li>
+                <li>KDE density curves, summary statistics</li>
+                <li>Missing value inspection &amp; value counts</li>
+            </ul>
+        </div>
+
+        <div class="ops-tile ops-purple">
+            <div class="ops-tile-icon">&#9881;</div>
+            <h4>Feature Engineering</h4>
+            <ul>
+                <li>Encoding categorical variables</li>
+                <li>Normalisation &amp; standardisation</li>
+                <li>Derived feature creation</li>
+                <li>Outlier detection &amp; treatment</li>
+                <li>Train / test splitting</li>
+            </ul>
+        </div>
+
+        <div class="ops-tile ops-teal">
+            <div class="ops-tile-icon">&#128203;</div>
+            <h4>Data Management</h4>
+            <ul>
+                <li>Load &amp; preview first 100 rows</li>
+                <li>Full 50K dataset view with scrollable table</li>
+                <li>Column type inspection</li>
+                <li>Dataset shape &amp; schema overview</li>
+            </ul>
+        </div>
+
+        <div class="ops-tile ops-orange">
+            <div class="ops-tile-icon">&#128170;</div>
+            <h4>Prediction Pipeline</h4>
+            <ul>
+                <li>Binary classification: Placed / Not Placed</li>
+                <li>Multiple ML algorithms compared</li>
+                <li>Accuracy, Precision, Recall metrics</li>
+                <li>Confusion matrix visualisation</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── Tech Stack ──────────────────────────────────────────── -->
+<div class="card">
+    <h2>&#128736; Tech Stack Used</h2>
+    <div class="tech-grid">
+
+        <div class="tech-badge tech-python">
+            <div class="tech-logo">&#128013;</div>
+            <div class="tech-info">
+                <strong>Python 3.x</strong>
+                <small>Core programming language</small>
+            </div>
+        </div>
+
+        <div class="tech-badge tech-flask">
+            <div class="tech-logo">&#9879;</div>
+            <div class="tech-info">
+                <strong>Flask</strong>
+                <small>Web framework &amp; routing</small>
+            </div>
+        </div>
+
+        <div class="tech-badge tech-pandas">
+            <div class="tech-logo">&#128195;</div>
+            <div class="tech-info">
+                <strong>Pandas</strong>
+                <small>Data manipulation &amp; analysis</small>
+            </div>
+        </div>
+
+        <div class="tech-badge tech-numpy">
+            <div class="tech-logo">&#128290;</div>
+            <div class="tech-info">
+                <strong>NumPy</strong>
+                <small>Numerical computing</small>
+            </div>
+        </div>
+
+        <div class="tech-badge tech-matplotlib">
+            <div class="tech-logo">&#128202;</div>
+            <div class="tech-info">
+                <strong>Matplotlib</strong>
+                <small>Core plotting library</small>
+            </div>
+        </div>
+
+        <div class="tech-badge tech-seaborn">
+            <div class="tech-logo">&#127754;</div>
+            <div class="tech-info">
+                <strong>Seaborn</strong>
+                <small>Statistical data visualisation</small>
+            </div>
+        </div>
+
+        <div class="tech-badge tech-sklearn">
+            <div class="tech-logo">&#129302;</div>
+            <div class="tech-info">
+                <strong>Scikit-learn</strong>
+                <small>ML algorithms &amp; metrics</small>
+            </div>
+        </div>
+
+        <div class="tech-badge tech-html">
+            <div class="tech-logo">&#128421;</div>
+            <div class="tech-info">
+                <strong>HTML / CSS / JS</strong>
+                <small>Frontend &amp; interactivity</small>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── Dataset Columns ──────────────────────────────────────── -->
+<div class="card">
+    <h2>&#128196; Dataset Features (Columns)</h2>
+    <p style="margin-bottom: 14px; color:#666;">
+        The dataset contains the following <strong>{{ num_cols }} features</strong> collected per student:
+    </p>
+    <div class="col-pills">
         {% for col in columns %}
-        <span style="background: #eef3ff; color: #0f3460; padding: 6px 14px; border-radius: 20px; font-size: 0.88rem; border: 1px solid #c5d5f5; font-weight: 500;">{{ col }}</span>
+        <span class="col-pill">{{ col }}</span>
         {% endfor %}
     </div>
 </div>
 
+<!-- ── Quick Actions ───────────────────────────────────────── -->
 <div class="card">
-    <h2>&#128200; Quick Actions</h2>
-    <div style="display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px;">
-        <a href="{{ url_for('load_page') }}" class="btn btn-primary">&#128203; View Dataset</a>
-        <a href="{{ url_for('eda_page') }}" class="btn btn-primary">&#128200; Run EDA</a>
+    <h2>&#9889; Quick Actions</h2>
+    <div class="quick-actions">
+        <a href="{{ url_for('load_page') }}" class="qa-card qa-blue">
+            <div class="qa-icon">&#128203;</div>
+            <strong>Load Data</strong>
+            <small>Preview first 100 rows</small>
+        </a>
+        <a href="{{ url_for('full_data_page') }}" class="qa-card qa-purple">
+            <div class="qa-icon">&#128214;</div>
+            <strong>Full Dataset</strong>
+            <small>View all 50K records</small>
+        </a>
+        <a href="{{ url_for('eda_page') }}" class="qa-card qa-teal">
+            <div class="qa-icon">&#128200;</div>
+            <strong>Run EDA</strong>
+            <small>Explore & visualise data</small>
+        </a>
+        <a href="{{ url_for('feature_engg_page') }}" class="qa-card qa-orange">
+            <div class="qa-icon">&#9881;</div>
+            <strong>Feature Engg</strong>
+            <small>Transform features</small>
+        </a>
     </div>
 </div>
+
+
+<!-- ── Dashboard Styles ─────────────────────────────────────── -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Hero */
+.dash-hero {
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #1a1a2e 100%);
+    border-radius: 16px;
+    padding: 40px 36px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(15,52,96,0.35);
+}
+
+.dash-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+}
+
+.dash-hero-content { flex: 1; min-width: 0; position: relative; z-index: 1; }
+
+.dash-hero-badge {
+    display: inline-block;
+    background: rgba(160, 196, 255, 0.15);
+    border: 1px solid rgba(160, 196, 255, 0.35);
+    color: #a0c4ff;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+}
+
+.dash-hero-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 12px;
+    line-height: 1.25;
+}
+
+.dash-accent {
+    background: linear-gradient(135deg, #a0c4ff, #6eb3f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dash-hero-sub {
+    font-size: 0.93rem;
+    color: #cdd6f4;
+    line-height: 1.7;
+    margin-bottom: 22px;
+    max-width: 540px;
+}
+
+.dash-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.btn-secondary {
+    display: inline-block;
+    text-decoration: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.08);
+    color: white;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+}
+
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.6);
+    transform: translateY(-1px);
+}
+
+/* Hero visual floating */
+.dash-hero-visual {
+    width: 220px;
+    min-width: 200px;
+    position: relative;
+    height: 160px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 700px) { .dash-hero-visual { display: none; } }
+
+.dash-orb {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.18;
+    animation: float 6s ease-in-out infinite;
+}
+.dash-orb-1 { width:120px; height:120px; background:#1a7fcf; top:0; right:0; animation-delay:0s; }
+.dash-orb-2 { width:80px;  height:80px;  background:#a0c4ff; top:40px; right:60px; animation-delay:2s; }
+.dash-orb-3 { width:50px;  height:50px;  background:#6eb3f7; top:80px; right:10px; animation-delay:4s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-14px); }
+}
+
+.dash-kpi-float {
+    position: absolute;
+    bottom: 0; right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 2;
+}
+
+.kpi-item {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 8px 14px;
+    text-align: right;
+    backdrop-filter: blur(10px);
+}
+
+.kpi-item span {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #a0c4ff;
+}
+
+.kpi-item small {
+    font-size: 0.72rem;
+    color: #cdd6f4;
+}
+
+/* Stat boxes */
+.stat-box {
+    padding: 22px;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-box:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+
+.stat-box.stat-blue   { background: linear-gradient(135deg, #0f3460, #1a7fcf); }
+.stat-box.stat-purple { background: linear-gradient(135deg, #7b2ff7, #c850c0); }
+.stat-box.stat-teal   { background: linear-gradient(135deg, #00b4d8, #0077b6); }
+.stat-box.stat-orange { background: linear-gradient(135deg, #f77f00, #e63946); }
+
+.stat-box h3 { font-size: 2rem; color: white; margin-bottom: 6px; font-weight: 800; }
+.stat-box p  { font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 500; }
+.stat-icon   { font-size: 1.6rem; margin-bottom: 8px; }
+
+/* Operations grid */
+.ops-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+    margin-top: 4px;
+}
+
+.ops-tile {
+    border-radius: 12px;
+    padding: 22px 20px;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.ops-tile:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.12); }
+
+.ops-tile.ops-blue   { background: linear-gradient(135deg, #eef3ff, #dce8ff); border: 1px solid #c5d5f5; }
+.ops-tile.ops-purple { background: linear-gradient(135deg, #f3eeff, #e8d8ff); border: 1px solid #d5c0f5; }
+.ops-tile.ops-teal   { background: linear-gradient(135deg, #e0f7fa, #b2ebf2); border: 1px solid #80deea; }
+.ops-tile.ops-orange { background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ffcc80; }
+
+.ops-tile-icon { font-size: 1.8rem; margin-bottom: 10px; }
+
+.ops-tile h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f3460;
+    margin-bottom: 10px;
+}
+
+.ops-tile ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ops-tile ul li {
+    font-size: 0.83rem;
+    color: #444;
+    padding: 3px 0 3px 14px;
+    position: relative;
+    line-height: 1.45;
+}
+
+.ops-tile ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: #1a7fcf;
+}
+
+/* Tech grid */
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 4px;
+}
+
+.tech-badge {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1.5px solid;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tech-badge:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
+
+.tech-python     { background: #eef8ff; border-color: #b3d9f7; }
+.tech-flask      { background: #f0f7ee; border-color: #b3d4ac; }
+.tech-pandas     { background: #fff8ee; border-color: #f7d9a3; }
+.tech-numpy      { background: #eef3ff; border-color: #c5d5f5; }
+.tech-matplotlib { background: #fff0f5; border-color: #f5c0d0; }
+.tech-seaborn    { background: #eefcff; border-color: #a0dff0; }
+.tech-sklearn    { background: #f5eeff; border-color: #d0b8f0; }
+.tech-html       { background: #fff5ee; border-color: #f5c8a0; }
+
+.tech-logo { font-size: 1.7rem; flex-shrink: 0; }
+
+.tech-info strong { display: block; font-size: 0.93rem; font-weight: 700; color: #1a1a2e; }
+.tech-info small  { font-size: 0.78rem; color: #666; }
+
+/* Column pills */
+.col-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.col-pill {
+    background: linear-gradient(135deg, #eef3ff, #dce8ff);
+    color: #0f3460;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    border: 1px solid #c5d5f5;
+    transition: all 0.18s ease;
+}
+
+.col-pill:hover {
+    background: linear-gradient(135deg, #0f3460, #1a7fcf);
+    color: white;
+    border-color: transparent;
+    transform: translateY(-2px);
+}
+
+/* Quick action cards */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-top: 4px;
+}
+
+.qa-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1.5px solid;
+    text-align: center;
+}
+
+.qa-card:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 14px 32px rgba(0,0,0,0.15); }
+
+.qa-card.qa-blue   { background: linear-gradient(135deg, #eef3ff, #dce8ff); border-color: #b3c8f0; }
+.qa-card.qa-purple { background: linear-gradient(135deg, #f3eeff, #e8d8ff); border-color: #c8a8f0; }
+.qa-card.qa-teal   { background: linear-gradient(135deg, #e0f7fa, #b2ebf2); border-color: #80deea; }
+.qa-card.qa-orange { background: linear-gradient(135deg, #fff3e0, #ffe0b2); border-color: #ffb74d; }
+
+.qa-icon { font-size: 2rem; margin-bottom: 10px; }
+
+.qa-card strong { display: block; font-size: 0.92rem; font-weight: 700; color: #0f3460; margin-bottom: 4px; }
+.qa-card small  { font-size: 0.78rem; color: #666; }
+</style>
+
 {% endblock %}
