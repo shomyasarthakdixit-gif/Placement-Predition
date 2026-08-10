@@ -104,6 +104,16 @@
                 </select>
             </div>
 
+            <!-- ── Univariate: Outlier Stats ── -->
+            <div id="outlier_inputs" style="display: none;">
+                <label for="col_outlier">Select Numeric Column:</label>
+                <select name="col_outlier" id="col_outlier">
+                    {% for col in numeric_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <!-- ── Bivariate: Violin ── -->
             <div id="violin_inputs" style="display: none;">
                 <label for="col_violin_x">X Axis (Categorical Column):</label>
@@ -420,6 +430,7 @@ const univariateOptions = [
     { value: 'summary_stats',          label: '📋 Summary Statistics (describe)' },
     { value: 'missing_values',         label: '❓ Missing Values Check' },
     { value: 'value_counts',           label: '🔢 Value Counts for a Column' },
+    { value: 'outlier_stats',          label: '📉 Detailed Outlier Statistics' },
 ];
 
 const bivariateOptions = [
@@ -511,7 +522,7 @@ function toggleInputs() {
     const op = document.getElementById('operation')?.value || '';
 
     // Hide all extra inputs first
-    ['kde_inputs','vc_inputs','violin_inputs',
+    ['kde_inputs','vc_inputs','violin_inputs', 'outlier_inputs',
      'mv_pairplot_inputs','mv_grouped_bar_inputs',
      'mv_boxgroup_inputs','mv_strip_inputs','mv_facet_inputs'
     ].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
@@ -519,6 +530,7 @@ function toggleInputs() {
     // Show relevant ones
     if (op === 'kde_plot')     document.getElementById('kde_inputs').style.display    = 'block';
     if (op === 'value_counts') document.getElementById('vc_inputs').style.display     = 'block';
+    if (op === 'outlier_stats') document.getElementById('outlier_inputs').style.display = 'block';
     if (op === 'violin_plot')  document.getElementById('violin_inputs').style.display = 'block';
     if (mvExtraInputs[op]) {
         const el = document.getElementById(mvExtraInputs[op]);

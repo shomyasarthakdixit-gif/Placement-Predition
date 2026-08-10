@@ -212,7 +212,7 @@
         <div class="fi-row">
             <span class="fi-name">{{ fi.name }}</span>
             <div class="fi-bar-track">
-                <div class="fi-bar-fill" style="width: {{ fi.pct * 3 | min(100) }}%"></div>
+                <div class="fi-bar-fill" style="width: {{ [fi.pct * 3, 100] | min }}%"></div>
             </div>
             <span class="fi-pct">{{ fi.pct }}%</span>
         </div>

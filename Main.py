@@ -145,6 +145,39 @@ def eda_page():
             if col:
                 eda_output = df[col].value_counts().to_frame(name='Count').to_html(classes="data-table")
 
+        # ── Outlier Statistics ───────────────────────────────────
+        elif operation == 'outlier_stats':
+            col = request.form.get('col_outlier')
+            if col and pd.api.types.is_numeric_dtype(df[col]):
+                series = df[col].dropna()
+                q1 = series.quantile(0.25)
+                q2 = series.median()
+                q3 = series.quantile(0.75)
+                iqr = q3 - q1
+                lb = q1 - 1.5 * iqr
+                ub = q3 + 1.5 * iqr
+                outliers = series[(series < lb) | (series > ub)]
+                
+                stats_df = pd.DataFrame({
+                    'Metric': ['Min', 'Max', 'Q1 (25%)', 'Q2 (Median)', 'Q3 (75%)', 'IQR', 'Lower Bound (LB)', 'Upper Bound (UB)', 'Outliers Count'],
+                    'Value': [series.min(), series.max(), q1, q2, q3, iqr, lb, ub, len(outliers)]
+                })
+                
+                # Format to a specific decimal limit for neatness
+                stats_df['Value'] = stats_df['Value'].apply(lambda x: round(x, 4) if isinstance(x, float) else x)
+                
+                outlier_vals_str = "None"
+                if len(outliers) > 0:
+                    outlier_vals = outliers.head(10).apply(lambda x: round(x, 4) if isinstance(x, float) else x).values
+                    outlier_vals_str = ", ".join(map(str, outlier_vals))
+                    if len(outliers) > 10:
+                        outlier_vals_str += f" ... (and {len(outliers)-10} more)"
+                
+                # Append sample outliers row
+                stats_df.loc[len(stats_df)] = ['Sample Outliers', outlier_vals_str]
+                
+                eda_output = f"<h3 style='margin-bottom: 12px;'>Outlier Analysis for <strong>{col}</strong></h3>" + stats_df.to_html(classes="data-table", index=False)
+
         # ── KDE Plot ─────────────────────────────────────────────
         elif operation == 'kde_plot':
             col = request.form.get('col_kde')

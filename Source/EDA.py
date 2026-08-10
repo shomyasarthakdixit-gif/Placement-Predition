@@ -16,6 +16,8 @@ os.makedirs(REPORT_PATH, exist_ok=True)
 #loading data
 df = pd.read_csv(os.path.join(DATA_PATH, "placement_predict_50k Dataset (2).csv"))
 print(df.shape)
+print(df.describe())
+print(df.info())
 
 #Count Plot
 plt.figure(figsize = (10,10))
@@ -89,3 +91,4 @@ plt.xlabel("Placement Status")
 plt.ylabel("CGPA")
 plt.savefig(os.path.join(PLOT_PATH, "DotPlot.png"))
 plt.show()
+
