@@ -196,6 +196,25 @@
             </div>
         </div>
 
+        <!-- SECTION: Model Selection -->
+        <div class="pred-section" style="margin-top: 16px; border-color: #1a7fcf;">
+            <div class="pred-section-title" style="background: linear-gradient(135deg, #1a7fcf, #0f3460);">
+                &#9881; Model Selection
+            </div>
+            <div class="pred-grid" style="grid-template-columns: 1fr;">
+                <div class="pred-field">
+                    <label for="model_type">Choose Algorithm:</label>
+                    <select name="model_type" id="model_type">
+                        <option value="rf">Random Forest (Scale-Invariant)</option>
+                        <option value="lr">Logistic Regression (Requires Scaled Features)</option>
+                    </select>
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 8px;">
+                        <em>Notice how Logistic Regression relies heavily on the underlying StandardScaler and RobustScaler we implemented in the ML pipeline!</em>
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <div style="text-align: center; margin-top: 10px;">
             <button type="submit" class="btn-predict">&#129302; Predict Placement &amp; Package</button>
         </div>

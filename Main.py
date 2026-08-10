@@ -27,39 +27,91 @@ _TARGET_REG    = 'Salary Package'
 _DROP_COLS     = ['StudentID', 'IsAnomaly', 'CGPA_Tier', _TARGET_CLASS, _TARGET_REG]
 
 # ── Train ML models at startup ──────────────────────────────────────────
-clf_model  = None   # RandomForestClassifier → PlacementStatus
-reg_model  = None   # RandomForestRegressor  → Salary Package
+rf_clf_model = None
+lr_clf_model = None
+rf_reg_model = None
 _label_encoders = {}
 _feature_cols   = []
 
 def _train_models():
-    global clf_model, reg_model, _label_encoders, _feature_cols
+    global rf_clf_model, lr_clf_model, rf_reg_model, _label_encoders, _feature_cols
     from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-    from sklearn.preprocessing import LabelEncoder
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.preprocessing import LabelEncoder, StandardScaler, RobustScaler
+    from sklearn.compose import ColumnTransformer
+    from sklearn.pipeline import Pipeline
+    from sklearn.model_selection import train_test_split
 
     feat_df = df.drop(columns=_DROP_COLS, errors='ignore').copy()
     _feature_cols = feat_df.columns.tolist()
 
-    # Encode categoricals
-    for col in feat_df.select_dtypes(exclude=['number']).columns:
+    # Encode categoricals manually for simplicity since we accept string inputs from UI
+    # (Scikit-Learn's OneHotEncoder is better but requires complex UI mapping)
+    categorical_cols = feat_df.select_dtypes(exclude=['number']).columns
+    for col in categorical_cols:
         le = LabelEncoder()
         feat_df[col] = le.fit_transform(feat_df[col].astype(str))
         _label_encoders[col] = le
 
     X = feat_df.values
     y_cls = df[_TARGET_CLASS].values
+    
+    # ── Define the Preprocessing Pipeline ──
+    # Standardize clean numeric columns, Robust scale others that might have outliers
+    clean_num_cols = ['CGPA', 'AttendancePercent']
+    robust_num_cols = [c for c in _feature_cols if c not in categorical_cols and c not in clean_num_cols]
+    
+    # Get column indices for the ColumnTransformer
+    clean_idx = [_feature_cols.index(c) for c in clean_num_cols]
+    robust_idx = [_feature_cols.index(c) for c in robust_num_cols]
+    cat_idx = [_feature_cols.index(c) for c in categorical_cols]
+    
+    from sklearn.impute import SimpleImputer
+    
+    clean_pipe = Pipeline([
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler', StandardScaler())
+    ])
+    
+    robust_pipe = Pipeline([
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler', RobustScaler())
+    ])
+    
+    cat_pipe = Pipeline([
+        ('imputer', SimpleImputer(strategy='most_frequent'))
+    ])
+    
+    preprocessor = ColumnTransformer([
+        ('std', clean_pipe, clean_idx),
+        ('robust', robust_pipe, robust_idx),
+        ('cat', cat_pipe, cat_idx)
+    ], remainder='passthrough')
+
+    # 1. Random Forest (Scale-invariant, but we'll use raw features directly or through pipeline)
+    rf_clf_model = Pipeline([
+        ('impute_and_scale', preprocessor),
+        ('clf', RandomForestClassifier(n_estimators=150, random_state=42, n_jobs=-1))
+    ])
+    rf_clf_model.fit(X, y_cls)
+    
+    # 2. Logistic Regression (Heavily dependent on Scaling)
+    lr_clf_model = Pipeline([
+        ('scale', preprocessor),
+        ('clf', LogisticRegression(max_iter=1000, random_state=42))
+    ])
+    lr_clf_model.fit(X, y_cls)
+
+    # 3. Regression model for Salary Package (only placed students)
     y_reg = df.loc[df[_TARGET_CLASS] == 1, _TARGET_REG].values
     X_reg = feat_df.loc[df[_TARGET_CLASS] == 1].values
+    
+    rf_reg_model = Pipeline([
+        ('reg', RandomForestRegressor(n_estimators=150, random_state=42, n_jobs=-1))
+    ])
+    rf_reg_model.fit(X_reg, y_reg)
 
-    # Classification model
-    clf_model = RandomForestClassifier(n_estimators=150, random_state=42, n_jobs=-1)
-    clf_model.fit(X, y_cls)
-
-    # Regression model (only placed students)
-    reg_model = RandomForestRegressor(n_estimators=150, random_state=42, n_jobs=-1)
-    reg_model.fit(X_reg, y_reg)
-
-    print("[ML] Models trained successfully.")
+    print("[ML] Models trained successfully (Pipelines for RF & LR ready).")
 
 _train_models()
 
@@ -315,9 +367,74 @@ def serve_plot(filename):
     return send_from_directory(PLOT_PATH, filename)
 
 
-@app.route('/feature_engg')
+@app.route('/feature_engg', methods=['GET', 'POST'])
 def feature_engg_page():
-    return render_template('feature_engg.html')
+    dynamic_plot = None
+    scaled_html = None
+    metrics_html = None
+    
+    if request.method == 'POST':
+        col = request.form.get('fe_column')
+        scaler_type = request.form.get('fe_scaler')
+        
+        if col and pd.api.types.is_numeric_dtype(df[col]):
+            from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
+            
+            raw_data = df[[col]].dropna()
+            
+            if scaler_type == 'minmax':
+                scaler = MinMaxScaler()
+            elif scaler_type == 'standard':
+                scaler = StandardScaler()
+            elif scaler_type == 'robust':
+                scaler = RobustScaler()
+            else:
+                scaler = None
+                
+            if scaler:
+                scaled_data = scaler.fit_transform(raw_data)
+                
+                # Metrics comparison
+                metrics = pd.DataFrame({
+                    'Metric': ['Min', 'Max', 'Mean', 'Std Dev', 'Median', 'IQR'],
+                    'Raw (Before)': [
+                        raw_data[col].min(), raw_data[col].max(), raw_data[col].mean(), 
+                        raw_data[col].std(), raw_data[col].median(), 
+                        raw_data[col].quantile(0.75) - raw_data[col].quantile(0.25)
+                    ],
+                    'Scaled (After)': [
+                        scaled_data.min(), scaled_data.max(), scaled_data.mean(), 
+                        scaled_data.std(), np.median(scaled_data), 
+                        np.percentile(scaled_data, 75) - np.percentile(scaled_data, 25)
+                    ]
+                }).round(4)
+                
+                metrics_html = metrics.to_html(classes="data-table", index=False)
+                
+                # Sample of scaled data
+                sample_df = pd.DataFrame({
+                    'Raw Value': raw_data[col].head(10).values,
+                    f'{scaler_type.capitalize()} Scaled': scaled_data[:10].flatten()
+                }).round(4)
+                scaled_html = sample_df.to_html(classes="data-table", index=False)
+                
+                # Side by side KDE Plot
+                fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+                sns.kdeplot(data=raw_data, x=col, fill=True, color='#0f3460', ax=axes[0])
+                axes[0].set_title(f'Before Scaling ({col})', fontweight='bold')
+                
+                sns.kdeplot(scaled_data.flatten(), fill=True, color='#1a7fcf', ax=axes[1])
+                axes[1].set_title(f'After {scaler_type.capitalize()} Scaling', fontweight='bold')
+                axes[1].set_xlabel('Scaled Value')
+                
+                plt.tight_layout()
+                dynamic_plot = _fig_to_b64(fig)
+                
+    return render_template('feature_engg.html', 
+                           numeric_cols=_numeric_cols,
+                           dynamic_plot=dynamic_plot,
+                           metrics_html=metrics_html,
+                           scaled_html=scaled_html)
 
 
 # ── Prediction Route ─────────────────────────────────────────────────────
@@ -356,13 +473,14 @@ def predict_page():
 
 
 def _run_prediction(form):
-    """Build feature row from form, run both models, return result dict."""
+    """Build feature row from form, run chosen model, return result dict."""
     from sklearn.preprocessing import LabelEncoder
+    
+    model_type = form.get('model_type', 'rf') # 'rf' or 'lr'
 
     row = {}
     for col in _feature_cols:
         if col in _label_encoders:
-            # Categorical: encode via saved LabelEncoder
             val = form.get(col, '')
             le  = _label_encoders[col]
             if val in le.classes_:
@@ -370,7 +488,6 @@ def _run_prediction(form):
             else:
                 row[col] = 0
         else:
-            # Numeric
             try:
                 row[col] = float(form.get(col, 0))
             except (ValueError, TypeError):
@@ -379,11 +496,15 @@ def _run_prediction(form):
     X_input = np.array([[row[c] for c in _feature_cols]])
 
     # Classification
-    placed_prob  = clf_model.predict_proba(X_input)[0][1]
-    placed_class = int(clf_model.predict(X_input)[0])
+    if model_type == 'lr':
+        placed_prob  = lr_clf_model.predict_proba(X_input)[0][1]
+        placed_class = int(lr_clf_model.predict(X_input)[0])
+    else:
+        placed_prob  = rf_clf_model.predict_proba(X_input)[0][1]
+        placed_class = int(rf_clf_model.predict(X_input)[0])
 
-    # Regression (always run, but show only if placed)
-    salary_pred  = float(reg_model.predict(X_input)[0])
+    # Regression (always run RF regressor)
+    salary_pred  = float(rf_reg_model.predict(X_input)[0])
     salary_pred  = round(max(3.0, min(salary_pred, 30.0)), 2)
 
     return {
@@ -395,10 +516,10 @@ def _run_prediction(form):
 
 
 def _get_feature_importance():
-    """Return top-12 feature importances for the classifier."""
-    if clf_model is None:
+    """Return top-12 feature importances for the RF classifier."""
+    if rf_clf_model is None:
         return []
-    importances = clf_model.feature_importances_
+    importances = rf_clf_model.named_steps['clf'].feature_importances_
     pairs = sorted(zip(_feature_cols, importances), key=lambda x: -x[1])[:12]
     total = sum(v for _, v in pairs)
     return [{'name': n, 'pct': round(v / total * 100, 1)} for n, v in pairs]
