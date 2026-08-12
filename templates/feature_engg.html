@@ -1,171 +1,125 @@
 {% extends "base.html" %}
-{% block title %}Feature Engineering | ML Dashboard{% endblock %}
+{% block title %}Feature Engineering Hub | ML Dashboard{% endblock %}
 
 {% block content %}
-<div class="fe-hero">
-    <div class="fe-hero-inner">
-        <div class="fe-hero-badge">&#9881; Data Preprocessing</div>
-        <h1>Feature Scaling &amp; Standardization</h1>
-        <p>Explore how different scaling techniques (<strong>StandardScaler</strong>, <strong>RobustScaler</strong>, <strong>MinMaxScaler</strong>) 
-           affect the underlying geometry and distribution of your data.</p>
+
+<!-- ── Hero Banner ─────────────────────────────────────────── -->
+<div class="dash-hero slide-in">
+    <div class="dash-hero-content">
+        <div class="dash-hero-badge"><i class="ph ph-gear-six"></i> Feature Engineering Hub</div>
+        <h1 class="dash-hero-title">Mathematical <span class="dash-accent">Transformations</span></h1>
+        <p class="dash-hero-sub">
+            A high-level overview of the advanced mathematical transformations applied to the 50,000 student records before they are fed into our Machine Learning pipelines.
+        </p>
+    </div>
+    <div class="dash-hero-visual" style="display: flex; align-items: center; justify-content: center;">
+        <i class="ph ph-magic-wand" style="font-size: 8rem; color: var(--accent-primary); opacity: 0.2; animation: float 6s infinite;"></i>
     </div>
 </div>
 
-<!-- ── Scaling Selection Form ─────────────────────────────── -->
-<div class="card">
-    <h2>&#128203; Apply Feature Scaling</h2>
-    <form method="POST" action="{{ url_for('feature_engg_page') }}" class="fe-form">
-        <div class="fe-grid">
-            <div class="fe-field">
-                <label for="fe_column">Select Numeric Column:</label>
-                <select name="fe_column" id="fe_column">
-                    {% for col in numeric_cols %}
-                    {% if col not in ['StudentID', 'IsAnomaly', 'PlacementStatus'] %}
-                    <option value="{{ col }}">{{ col }}</option>
-                    {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="fe-field">
-                <label for="fe_scaler">Choose Scaler Algorithm:</label>
-                <select name="fe_scaler" id="fe_scaler">
-                    <option value="standard">StandardScaler (Z-Score) — Best for clean, Gaussian data</option>
-                    <option value="robust">RobustScaler (Median/IQR) — Best for data with extreme outliers</option>
-                    <option value="minmax">MinMaxScaler [0,1] — Best for bounded outputs (e.g. Neural Nets)</option>
-                </select>
-            </div>
-        </div>
-        
-        <div style="margin-top: 18px;">
-            <button type="submit" class="btn-fe">&#9654; Apply &amp; Compare Scaler</button>
-        </div>
-    </form>
-</div>
-
-<!-- ── Results Section ────────────────────────────────────── -->
-{% if dynamic_plot %}
-<div class="card fade-in">
-    <h2>&#128200; Before vs. After Distribution</h2>
-    <p style="color:#666; margin-bottom: 12px; font-size: 0.9rem;">
-        <em>Note: Scaling never adds or removes predictive signal; it just changes how gradient/distance-based algorithms perceive the data. Notice how the shape is preserved!</em>
-    </p>
-    <div style="text-align:center;">
-        <img src="data:image/png;base64,{{ dynamic_plot }}" alt="Before After Plot"
-             style="max-width: 100%; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+<!-- ── Grid Cards ─────────────────────────────────────────── -->
+<div class="plots-grid fade-in delay-1">
+    
+    <!-- Scaling Card -->
+    <div class="card" style="display: flex; flex-direction: column;">
+        <h2 style="font-size: 1.4rem; border-bottom: none; margin-bottom: 10px;"><i class="ph ph-ruler"></i> Scaling &amp; Standardization</h2>
+        <p style="flex-grow: 1;">Numeric features are scaled using <strong>StandardScaler</strong> (for Gaussian data like CGPA) and <strong>RobustScaler</strong> (to handle extreme outliers) so distance-based models evaluate them equally.</p>
+        <a href="{{ url_for('preprocessing.scaling_page') }}" class="btn btn-primary" style="align-self: flex-start; margin-top: 10px;">Go to Scaling Dashboard <i class="ph ph-arrow-right"></i></a>
     </div>
-</div>
-{% endif %}
 
-{% if metrics_html %}
-<div class="fe-results-grid">
-    <div class="card fade-in">
-        <h2>&#128202; Distribution Metrics</h2>
-        <div class="table-wrapper">
-            {{ metrics_html | safe }}
-        </div>
+    <!-- Target Encoding Card -->
+    <div class="card" style="display: flex; flex-direction: column;">
+        <h2 style="font-size: 1.4rem; border-bottom: none; margin-bottom: 10px;"><i class="ph ph-target"></i> Target Encoding</h2>
+        <p style="flex-grow: 1;">Applied to high-cardinality features like <strong>City</strong> and <strong>Specialisation</strong>. We mathematically replace the category string with the historical average Placement Probability of that category!</p>
+        <a href="{{ url_for('preprocessing.encoding_page') }}" class="btn btn-secondary" style="align-self: flex-start; margin-top: 10px;">Explore Encodings <i class="ph ph-arrow-right"></i></a>
+    </div>
+
+    <!-- One-Hot & Ordinal Encoding Card -->
+    <div class="card" style="display: flex; flex-direction: column;">
+        <h2 style="font-size: 1.4rem; border-bottom: none; margin-bottom: 10px;"><i class="ph ph-git-merge"></i> OHE &amp; Ordinal Encoding</h2>
+        <p style="flex-grow: 1;"><strong>One-Hot Encoding</strong> expands low-cardinality nominals (<em>Gender, Hostel</em>) into binary vectors. <strong>Ordinal Encoding</strong> preserves the mathematical hierarchy of <em>CollegeTier</em> (1 > 2 > 3).</p>
+        <a href="{{ url_for('preprocessing.encoding_page') }}" class="btn btn-secondary" style="align-self: flex-start; margin-top: 10px;">Explore Encodings <i class="ph ph-arrow-right"></i></a>
     </div>
     
-    <div class="card fade-in">
-        <h2>&#128196; Data Sample</h2>
-        <div class="table-wrapper">
-            {{ scaled_html | safe }}
-        </div>
+    <!-- Embedding/Hashing Card -->
+    <div class="card" style="display: flex; flex-direction: column;">
+        <h2 style="font-size: 1.4rem; border-bottom: none; margin-bottom: 10px;"><i class="ph ph-hash"></i> Embedding / Hashing</h2>
+        <p style="flex-grow: 1;">Applied to <strong>Stream</strong>. We utilize a highly efficient <em>HashingEncoder</em> to map strings into a dense n-dimensional embedding vector, solving the curse of dimensionality without deep learning!</p>
+        <a href="{{ url_for('preprocessing.encoding_page') }}" class="btn btn-secondary" style="align-self: flex-start; margin-top: 10px;">Explore Encodings <i class="ph ph-arrow-right"></i></a>
     </div>
+
 </div>
-{% endif %}
 
-
-<!-- ── Styles ─────────────────────────────────────────────── -->
+<!-- ── Specific Styles ─────────────────────────────────────────────── -->
 <style>
-/* Hero */
-.fe-hero {
-    background: linear-gradient(135deg, #13547a 0%, #80d0c7 100%);
-    border-radius: 16px; padding: 32px; margin-bottom: 24px;
-    box-shadow: 0 8px 32px rgba(19,84,122,0.25);
-    position: relative; overflow: hidden;
+/* Re-use animations */
+.slide-in {
+    animation: slide-in-bottom 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-.fe-hero::before {
-    content:''; position:absolute; inset:0;
-    background: radial-gradient(circle at 90% 10%, rgba(255,255,255,0.15) 0%, transparent 60%);
-}
-.fe-hero-inner { position:relative; z-index:1; }
-.fe-hero-badge {
-    display:inline-block; background:rgba(255,255,255,0.2);
-    border:1px solid rgba(255,255,255,0.4); color:white;
-    padding:4px 14px; border-radius:20px; font-size:0.78rem;
-    font-weight:600; letter-spacing:0.5px; margin-bottom:12px;
-}
-.fe-hero h1 { font-size:1.7rem; font-weight:800; color:white; margin-bottom:8px; }
-.fe-hero p  { font-size:0.92rem; color:#e0f5f0; line-height:1.6; max-width:650px; margin:0; }
-
-/* Form Elements */
-.fe-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    background: #f8fafe;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #dbe4f8;
-}
-@media (max-width: 768px) { .fe-grid { grid-template-columns: 1fr; } }
-
-.fe-field label {
-    display: block; font-size: 0.85rem; font-weight: 600;
-    color: #444; margin-bottom: 6px;
-}
-.fe-field select {
-    width: 100%; padding: 10px 14px;
-    border: 1.5px solid #c5d5f5; border-radius: 8px;
-    font-size: 0.9rem; background: white; color: #333;
-    outline: none; transition: all 0.2s;
-}
-.fe-field select:focus {
-    border-color: #13547a;
-    box-shadow: 0 0 0 3px rgba(19,84,122,0.15);
-}
-
-.btn-fe {
-    background: linear-gradient(135deg,#13547a,#80d0c7);
-    color: white; border: none; padding: 12px 32px;
-    border-radius: 8px; font-size: 1rem; font-weight: 700;
-    cursor: pointer; transition: all 0.25s ease;
-    box-shadow: 0 4px 15px rgba(19,84,122,0.3);
-}
-.btn-fe:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(19,84,122,0.4);
-}
-
-/* Results Grid */
-.fe-results-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-}
-@media (max-width: 900px) { .fe-results-grid { grid-template-columns: 1fr; } }
-
 .fade-in {
-    animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
+.delay-1 { animation-delay: 0.1s; }
+
+@keyframes slide-in-bottom {
+    from { opacity: 0; transform: translateY(40px); }
     to { opacity: 1; transform: translateY(0); }
 }
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
 
-/* Make tables stand out */
-.table-wrapper .data-table { font-size: 0.85rem; }
-.table-wrapper .data-table th { background: linear-gradient(135deg, #f8fafe, #eef3ff); color: #0f3460; }
+/* Hero reuse */
+.dash-hero {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px var(--shadow-color);
+    backdrop-filter: blur(16px);
+}
+.dash-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, var(--accent-primary) 0%, transparent 60%);
+    opacity: 0.1;
+    pointer-events: none;
+}
+.dash-hero-content { flex: 1; position: relative; z-index: 1; }
+.dash-hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--input-bg); border: 1px solid var(--border-color);
+    color: var(--accent-primary); padding: 6px 16px; border-radius: 20px;
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 16px;
+}
+.dash-hero-title {
+    font-size: 2.4rem; font-weight: 800; color: var(--text-primary);
+    margin-bottom: 12px; line-height: 1.2; letter-spacing: -1px;
+}
+.dash-accent {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.dash-hero-sub {
+    font-size: 1rem; color: var(--text-secondary); line-height: 1.6; max-width: 600px;
+}
+@media (max-width: 800px) {
+    .dash-hero-visual { display: none !important; }
+}
 </style>
-
-<script>
-// Restore selections
-window.addEventListener('DOMContentLoaded', () => {
-    const savedCol = "{{ request.form.get('fe_column', '') }}";
-    const savedScaler = "{{ request.form.get('fe_scaler', '') }}";
-    if (savedCol) document.getElementById('fe_column').value = savedCol;
-    if (savedScaler) document.getElementById('fe_scaler').value = savedScaler;
-});
-</script>
 {% endblock %}

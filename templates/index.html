@@ -4,17 +4,17 @@
 {% block content %}
 
 <!-- ── Hero Banner ─────────────────────────────────────────── -->
-<div class="dash-hero">
+<div class="dash-hero slide-in">
     <div class="dash-hero-content">
-        <div class="dash-hero-badge">&#127891; Machine Learning Project</div>
+        <div class="dash-hero-badge"><i class="ph ph-graduation-cap"></i> Machine Learning Project</div>
         <h1 class="dash-hero-title">Placement Prediction <span class="dash-accent">Dashboard</span></h1>
         <p class="dash-hero-sub">
             An end-to-end ML pipeline to predict student placement outcomes from academic, skills, and socio-demographic data —
             featuring interactive EDA, feature engineering, and predictive modelling on <strong>50,000 student records</strong>.
         </p>
         <div class="dash-hero-actions">
-            <a href="{{ url_for('load_page') }}" class="btn btn-primary">&#128203; Explore Dataset</a>
-            <a href="{{ url_for('eda_page') }}" class="btn btn-secondary">&#128200; Run EDA</a>
+            <a href="{{ url_for('home.load_page') }}" class="btn btn-primary"><i class="ph ph-database"></i> Explore Dataset</a>
+            <a href="{{ url_for('eda.eda_page') }}" class="btn btn-secondary"><i class="ph ph-chart-bar"></i> Run EDA</a>
         </div>
     </div>
     <div class="dash-hero-visual">
@@ -30,26 +30,34 @@
 </div>
 
 <!-- ── Dataset Overview Stats ──────────────────────────────── -->
-<div class="card">
-    <h2>&#128202; Dataset Overview</h2>
+<div class="card fade-in delay-1">
+    <h2><i class="ph ph-chart-pie-slice"></i> Dataset Overview</h2>
     <div class="stat-grid">
-        <div class="stat-box stat-blue">
-            <div class="stat-icon">&#128221;</div>
+        <div class="stat-box">
+            <div class="stat-header">
+                <div class="stat-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.15);"><i class="ph ph-rows"></i></div>
+            </div>
             <h3>50,000</h3>
             <p>Total Rows</p>
         </div>
-        <div class="stat-box stat-purple">
-            <div class="stat-icon">&#128193;</div>
+        <div class="stat-box">
+            <div class="stat-header">
+                <div class="stat-icon" style="color: #8b5cf6; background: rgba(139, 92, 246, 0.15);"><i class="ph ph-columns"></i></div>
+            </div>
             <h3>{{ num_cols }}</h3>
             <p>Total Columns</p>
         </div>
-        <div class="stat-box stat-teal">
-            <div class="stat-icon">&#128290;</div>
+        <div class="stat-box">
+            <div class="stat-header">
+                <div class="stat-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.15);"><i class="ph ph-hash"></i></div>
+            </div>
             <h3>{{ numeric_count }}</h3>
             <p>Numeric Features</p>
         </div>
-        <div class="stat-box stat-orange">
-            <div class="stat-icon">&#127381;</div>
+        <div class="stat-box">
+            <div class="stat-header">
+                <div class="stat-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.15);"><i class="ph ph-text-t"></i></div>
+            </div>
             <h3>{{ cat_count }}</h3>
             <p>Categorical Features</p>
         </div>
@@ -57,12 +65,12 @@
 </div>
 
 <!-- ── What This Project Does ──────────────────────────────── -->
-<div class="card">
-    <h2>&#9989; What This Project Does</h2>
+<div class="card fade-in delay-2">
+    <h2><i class="ph ph-check-circle"></i> What This Project Does</h2>
     <div class="ops-grid">
 
-        <div class="ops-tile ops-blue">
-            <div class="ops-tile-icon">&#128200;</div>
+        <div class="ops-tile">
+            <div class="ops-tile-icon"><i class="ph ph-chart-line-up"></i></div>
             <h4>Exploratory Data Analysis</h4>
             <ul>
                 <li>Univariate analysis — distributions, counts, pie charts</li>
@@ -73,8 +81,8 @@
             </ul>
         </div>
 
-        <div class="ops-tile ops-purple">
-            <div class="ops-tile-icon">&#9881;</div>
+        <div class="ops-tile">
+            <div class="ops-tile-icon"><i class="ph ph-gear-six"></i></div>
             <h4>Feature Engineering</h4>
             <ul>
                 <li>Encoding categorical variables</li>
@@ -85,8 +93,8 @@
             </ul>
         </div>
 
-        <div class="ops-tile ops-teal">
-            <div class="ops-tile-icon">&#128203;</div>
+        <div class="ops-tile">
+            <div class="ops-tile-icon"><i class="ph ph-database"></i></div>
             <h4>Data Management</h4>
             <ul>
                 <li>Load &amp; preview first 100 rows</li>
@@ -96,8 +104,8 @@
             </ul>
         </div>
 
-        <div class="ops-tile ops-orange">
-            <div class="ops-tile-icon">&#128170;</div>
+        <div class="ops-tile">
+            <div class="ops-tile-icon"><i class="ph ph-rocket-launch"></i></div>
             <h4>Prediction Pipeline</h4>
             <ul>
                 <li>Binary classification: Placed / Not Placed</li>
@@ -111,68 +119,52 @@
 </div>
 
 <!-- ── Tech Stack ──────────────────────────────────────────── -->
-<div class="card">
-    <h2>&#128736; Tech Stack Used</h2>
+<div class="card fade-in delay-3">
+    <h2><i class="ph ph-wrench"></i> Tech Stack Used</h2>
     <div class="tech-grid">
 
-        <div class="tech-badge tech-python">
-            <div class="tech-logo">&#128013;</div>
+        <div class="tech-badge">
+            <div class="tech-logo"><i class="ph ph-code"></i></div>
             <div class="tech-info">
                 <strong>Python 3.x</strong>
                 <small>Core programming language</small>
             </div>
         </div>
 
-        <div class="tech-badge tech-flask">
-            <div class="tech-logo">&#9879;</div>
+        <div class="tech-badge">
+            <div class="tech-logo"><i class="ph ph-flask"></i></div>
             <div class="tech-info">
                 <strong>Flask</strong>
                 <small>Web framework &amp; routing</small>
             </div>
         </div>
 
-        <div class="tech-badge tech-pandas">
-            <div class="tech-logo">&#128195;</div>
+        <div class="tech-badge">
+            <div class="tech-logo"><i class="ph ph-table"></i></div>
             <div class="tech-info">
-                <strong>Pandas</strong>
-                <small>Data manipulation &amp; analysis</small>
+                <strong>Pandas & NumPy</strong>
+                <small>Data manipulation</small>
             </div>
         </div>
 
-        <div class="tech-badge tech-numpy">
-            <div class="tech-logo">&#128290;</div>
+        <div class="tech-badge">
+            <div class="tech-logo"><i class="ph ph-chart-polar"></i></div>
             <div class="tech-info">
-                <strong>NumPy</strong>
-                <small>Numerical computing</small>
+                <strong>Matplotlib & Seaborn</strong>
+                <small>Data visualisation</small>
             </div>
         </div>
 
-        <div class="tech-badge tech-matplotlib">
-            <div class="tech-logo">&#128202;</div>
-            <div class="tech-info">
-                <strong>Matplotlib</strong>
-                <small>Core plotting library</small>
-            </div>
-        </div>
-
-        <div class="tech-badge tech-seaborn">
-            <div class="tech-logo">&#127754;</div>
-            <div class="tech-info">
-                <strong>Seaborn</strong>
-                <small>Statistical data visualisation</small>
-            </div>
-        </div>
-
-        <div class="tech-badge tech-sklearn">
-            <div class="tech-logo">&#129302;</div>
+        <div class="tech-badge">
+            <div class="tech-logo"><i class="ph ph-robot"></i></div>
             <div class="tech-info">
                 <strong>Scikit-learn</strong>
-                <small>ML algorithms &amp; metrics</small>
+                <small>ML algorithms</small>
             </div>
         </div>
 
-        <div class="tech-badge tech-html">
-            <div class="tech-logo">&#128421;</div>
+        <div class="tech-badge">
+            <div class="tech-logo"><i class="ph ph-browser"></i></div>
             <div class="tech-info">
                 <strong>HTML / CSS / JS</strong>
                 <small>Frontend &amp; interactivity</small>
@@ -182,40 +174,27 @@
     </div>
 </div>
 
-<!-- ── Dataset Columns ──────────────────────────────────────── -->
-<div class="card">
-    <h2>&#128196; Dataset Features (Columns)</h2>
-    <p style="margin-bottom: 14px; color:#666;">
-        The dataset contains the following <strong>{{ num_cols }} features</strong> collected per student:
-    </p>
-    <div class="col-pills">
-        {% for col in columns %}
-        <span class="col-pill">{{ col }}</span>
-        {% endfor %}
-    </div>
-</div>
-
 <!-- ── Quick Actions ───────────────────────────────────────── -->
-<div class="card">
-    <h2>&#9889; Quick Actions</h2>
+<div class="card fade-in delay-4">
+    <h2><i class="ph ph-lightning"></i> Quick Actions</h2>
     <div class="quick-actions">
-        <a href="{{ url_for('load_page') }}" class="qa-card qa-blue">
-            <div class="qa-icon">&#128203;</div>
+        <a href="{{ url_for('home.load_page') }}" class="qa-card">
+            <div class="qa-icon"><i class="ph ph-database"></i></div>
             <strong>Load Data</strong>
             <small>Preview first 100 rows</small>
         </a>
-        <a href="{{ url_for('full_data_page') }}" class="qa-card qa-purple">
-            <div class="qa-icon">&#128214;</div>
+        <a href="{{ url_for('home.full_data_page') }}" class="qa-card">
+            <div class="qa-icon"><i class="ph ph-table"></i></div>
             <strong>Full Dataset</strong>
             <small>View all 50K records</small>
         </a>
-        <a href="{{ url_for('eda_page') }}" class="qa-card qa-teal">
-            <div class="qa-icon">&#128200;</div>
+        <a href="{{ url_for('eda.eda_page') }}" class="qa-card">
+            <div class="qa-icon"><i class="ph ph-chart-bar"></i></div>
             <strong>Run EDA</strong>
             <small>Explore & visualise data</small>
         </a>
-        <a href="{{ url_for('feature_engg_page') }}" class="qa-card qa-orange">
-            <div class="qa-icon">&#9881;</div>
+        <a href="{{ url_for('preprocessing.feature_engg_page') }}" class="qa-card">
+            <div class="qa-icon"><i class="ph ph-gear-six"></i></div>
             <strong>Feature Engg</strong>
             <small>Transform features</small>
         </a>
@@ -223,15 +202,33 @@
 </div>
 
 
-<!-- ── Dashboard Styles ─────────────────────────────────────── -->
+<!-- ── Dashboard Specific Styles ─────────────────────────────────────── -->
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* Animation classes */
+.slide-in {
+    animation: slide-in-bottom 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+
+@keyframes slide-in-bottom {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 /* Hero */
 .dash-hero {
-    background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #1a1a2e 100%);
-    border-radius: 16px;
-    padding: 40px 36px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 40px;
     margin-bottom: 24px;
     display: flex;
     align-items: center;
@@ -239,182 +236,154 @@
     gap: 28px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(15,52,96,0.35);
+    box-shadow: 0 10px 40px var(--shadow-color);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .dash-hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background: radial-gradient(circle at top right, var(--accent-primary) 0%, transparent 60%);
+    opacity: 0.1;
     pointer-events: none;
 }
 
 .dash-hero-content { flex: 1; min-width: 0; position: relative; z-index: 1; }
 
 .dash-hero-badge {
-    display: inline-block;
-    background: rgba(160, 196, 255, 0.15);
-    border: 1px solid rgba(160, 196, 255, 0.35);
-    color: #a0c4ff;
-    padding: 5px 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    color: var(--accent-primary);
+    padding: 6px 16px;
     border-radius: 20px;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.5px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 }
 
 .dash-hero-title {
-    font-size: 2rem;
+    font-size: 2.4rem;
     font-weight: 800;
-    color: white;
+    color: var(--text-primary);
     margin-bottom: 12px;
-    line-height: 1.25;
+    line-height: 1.2;
+    letter-spacing: -1px;
 }
 
 .dash-accent {
-    background: linear-gradient(135deg, #a0c4ff, #6eb3f7);
+    background: var(--accent-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .dash-hero-sub {
-    font-size: 0.93rem;
-    color: #cdd6f4;
-    line-height: 1.7;
-    margin-bottom: 22px;
-    max-width: 540px;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: 600px;
 }
 
 .dash-hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
-.btn-secondary {
-    display: inline-block;
-    text-decoration: none;
-    padding: 10px 22px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border: 1.5px solid rgba(255,255,255,0.35);
-    background: rgba(255,255,255,0.08);
-    color: white;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(8px);
-}
-
-.btn-secondary:hover {
-    background: rgba(255,255,255,0.18);
-    border-color: rgba(255,255,255,0.6);
-    transform: translateY(-1px);
-}
-
 /* Hero visual floating */
 .dash-hero-visual {
-    width: 220px;
-    min-width: 200px;
+    width: 240px;
+    min-width: 220px;
     position: relative;
-    height: 160px;
+    height: 200px;
     flex-shrink: 0;
 }
 
-@media (max-width: 700px) { .dash-hero-visual { display: none; } }
+@media (max-width: 800px) { .dash-hero-visual { display: none; } }
 
 .dash-orb {
     position: absolute;
     border-radius: 50%;
-    opacity: 0.18;
+    opacity: 0.4;
+    filter: blur(20px);
     animation: float 6s ease-in-out infinite;
 }
-.dash-orb-1 { width:120px; height:120px; background:#1a7fcf; top:0; right:0; animation-delay:0s; }
-.dash-orb-2 { width:80px;  height:80px;  background:#a0c4ff; top:40px; right:60px; animation-delay:2s; }
-.dash-orb-3 { width:50px;  height:50px;  background:#6eb3f7; top:80px; right:10px; animation-delay:4s; }
+.dash-orb-1 { width:140px; height:140px; background:var(--accent-primary); top:0; right:0; animation-delay:0s; }
+.dash-orb-2 { width:100px;  height:100px;  background:var(--accent-secondary); top:60px; right:80px; animation-delay:2s; }
+.dash-orb-3 { width:60px;  height:60px;  background:#00d2ff; top:120px; right:20px; animation-delay:4s; }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50%       { transform: translateY(-14px); }
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50%       { transform: translateY(-20px) scale(1.05); }
 }
 
 .dash-kpi-float {
     position: absolute;
-    bottom: 0; right: 0;
+    bottom: -10px; right: -10px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     z-index: 2;
 }
 
 .kpi-item {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 10px;
-    padding: 8px 14px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 16px;
     text-align: right;
     backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px var(--shadow-color);
 }
 
 .kpi-item span {
     display: block;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 800;
-    color: #a0c4ff;
+    color: var(--text-primary);
 }
 
 .kpi-item small {
-    font-size: 0.72rem;
-    color: #cdd6f4;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
 }
-
-/* Stat boxes */
-.stat-box {
-    padding: 22px;
-    border-radius: 12px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.stat-box:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
-
-.stat-box.stat-blue   { background: linear-gradient(135deg, #0f3460, #1a7fcf); }
-.stat-box.stat-purple { background: linear-gradient(135deg, #7b2ff7, #c850c0); }
-.stat-box.stat-teal   { background: linear-gradient(135deg, #00b4d8, #0077b6); }
-.stat-box.stat-orange { background: linear-gradient(135deg, #f77f00, #e63946); }
-
-.stat-box h3 { font-size: 2rem; color: white; margin-bottom: 6px; font-weight: 800; }
-.stat-box p  { font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 500; }
-.stat-icon   { font-size: 1.6rem; margin-bottom: 8px; }
 
 /* Operations grid */
 .ops-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 18px;
-    margin-top: 4px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 10px;
 }
 
 .ops-tile {
-    border-radius: 12px;
-    padding: 22px 20px;
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 24px;
+    transition: transform var(--transition-bounce), box-shadow var(--transition-normal);
 }
 
-.ops-tile:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.12); }
+.ops-tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px var(--shadow-color);
+    border-color: var(--accent-primary);
+}
 
-.ops-tile.ops-blue   { background: linear-gradient(135deg, #eef3ff, #dce8ff); border: 1px solid #c5d5f5; }
-.ops-tile.ops-purple { background: linear-gradient(135deg, #f3eeff, #e8d8ff); border: 1px solid #d5c0f5; }
-.ops-tile.ops-teal   { background: linear-gradient(135deg, #e0f7fa, #b2ebf2); border: 1px solid #80deea; }
-.ops-tile.ops-orange { background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ffcc80; }
-
-.ops-tile-icon { font-size: 1.8rem; margin-bottom: 10px; }
+.ops-tile-icon { 
+    font-size: 2rem; 
+    margin-bottom: 12px;
+    color: var(--accent-primary);
+}
 
 .ops-tile h4 {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #0f3460;
-    margin-bottom: 10px;
+    color: var(--text-primary);
+    margin-bottom: 12px;
 }
 
 .ops-tile ul {
@@ -424,81 +393,62 @@
 }
 
 .ops-tile ul li {
-    font-size: 0.83rem;
-    color: #444;
-    padding: 3px 0 3px 14px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: 4px 0 4px 20px;
     position: relative;
-    line-height: 1.45;
+    line-height: 1.5;
 }
 
 .ops-tile ul li::before {
-    content: '▸';
+    content: '\2022';
     position: absolute;
     left: 0;
-    color: #1a7fcf;
+    color: var(--accent-primary);
+    font-size: 1.2rem;
+    line-height: 1;
+    top: 2px;
 }
 
 /* Tech grid */
 .tech-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 14px;
-    margin-top: 4px;
+    gap: 16px;
+    margin-top: 10px;
 }
 
 .tech-badge {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
-    border-radius: 12px;
-    border: 1.5px solid;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    transition: transform var(--transition-bounce);
 }
 
-.tech-badge:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
-
-.tech-python     { background: #eef8ff; border-color: #b3d9f7; }
-.tech-flask      { background: #f0f7ee; border-color: #b3d4ac; }
-.tech-pandas     { background: #fff8ee; border-color: #f7d9a3; }
-.tech-numpy      { background: #eef3ff; border-color: #c5d5f5; }
-.tech-matplotlib { background: #fff0f5; border-color: #f5c0d0; }
-.tech-seaborn    { background: #eefcff; border-color: #a0dff0; }
-.tech-sklearn    { background: #f5eeff; border-color: #d0b8f0; }
-.tech-html       { background: #fff5ee; border-color: #f5c8a0; }
-
-.tech-logo { font-size: 1.7rem; flex-shrink: 0; }
-
-.tech-info strong { display: block; font-size: 0.93rem; font-weight: 700; color: #1a1a2e; }
-.tech-info small  { font-size: 0.78rem; color: #666; }
-
-/* Column pills */
-.col-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-
-.col-pill {
-    background: linear-gradient(135deg, #eef3ff, #dce8ff);
-    color: #0f3460;
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 0.83rem;
-    font-weight: 600;
-    border: 1px solid #c5d5f5;
-    transition: all 0.18s ease;
+.tech-badge:hover {
+    transform: translateY(-3px) scale(1.02);
+    border-color: var(--accent-secondary);
+    box-shadow: 0 8px 20px var(--shadow-color);
 }
 
-.col-pill:hover {
-    background: linear-gradient(135deg, #0f3460, #1a7fcf);
-    color: white;
-    border-color: transparent;
-    transform: translateY(-2px);
+.tech-logo {
+    font-size: 2rem;
+    color: var(--accent-primary);
 }
+
+.tech-info strong { display: block; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+.tech-info small  { font-size: 0.8rem; color: var(--text-secondary); }
 
 /* Quick action cards */
 .quick-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 14px;
-    margin-top: 4px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-top: 10px;
 }
 
 .qa-card {
@@ -508,22 +458,26 @@
     padding: 24px 16px;
     border-radius: 14px;
     text-decoration: none;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    border: 1.5px solid;
+    transition: all var(--transition-bounce);
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
     text-align: center;
 }
 
-.qa-card:hover { transform: translateY(-6px) scale(1.03); box-shadow: 0 14px 32px rgba(0,0,0,0.15); }
+.qa-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 12px 30px var(--shadow-color);
+    border-color: var(--accent-primary);
+}
 
-.qa-card.qa-blue   { background: linear-gradient(135deg, #eef3ff, #dce8ff); border-color: #b3c8f0; }
-.qa-card.qa-purple { background: linear-gradient(135deg, #f3eeff, #e8d8ff); border-color: #c8a8f0; }
-.qa-card.qa-teal   { background: linear-gradient(135deg, #e0f7fa, #b2ebf2); border-color: #80deea; }
-.qa-card.qa-orange { background: linear-gradient(135deg, #fff3e0, #ffe0b2); border-color: #ffb74d; }
+.qa-icon {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+    color: var(--accent-primary);
+}
 
-.qa-icon { font-size: 2rem; margin-bottom: 10px; }
-
-.qa-card strong { display: block; font-size: 0.92rem; font-weight: 700; color: #0f3460; margin-bottom: 4px; }
-.qa-card small  { font-size: 0.78rem; color: #666; }
+.qa-card strong { display: block; font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.qa-card small  { font-size: 0.8rem; color: var(--text-secondary); }
 </style>
 
 {% endblock %}
