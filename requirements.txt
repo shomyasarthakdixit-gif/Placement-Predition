@@ -5,3 +5,5 @@ matplotlib
 Flask
 scikit-learn
 category_encoders
+gunicorn
+joblib
