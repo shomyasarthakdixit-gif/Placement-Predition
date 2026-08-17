@@ -74,9 +74,9 @@ def scaling_page():
                 # Plot Original vs Scaled Distributions
                 plt.style.use('dark_background')
                 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-                fig.patch.set_alpha(0.0)
-                axes[0].patch.set_alpha(0.0)
-                axes[1].patch.set_alpha(0.0)
+                fig.patch.set_facecolor('#1e1e2f')
+                axes[0].patch.set_facecolor('#1e1e2f')
+                axes[1].patch.set_facecolor('#1e1e2f')
                 sns.kdeplot(data=raw_data, x=col, fill=True, color='#0f3460', ax=axes[0])
                 axes[0].set_title(f'Before Scaling ({col})', fontweight='bold')
                 
@@ -143,8 +143,8 @@ def encoding_page():
                 # Plot
                 plt.style.use('dark_background')
                 fig, ax = plt.subplots(figsize=(10, 5))
-                fig.patch.set_alpha(0.0)
-                ax.patch.set_alpha(0.0)
+                fig.patch.set_facecolor('#1e1e2f')
+                ax.patch.set_facecolor('#1e1e2f')
                 if encoder_type == 'ohe':
                     counts = encoded_data_renamed.sum().sort_values(ascending=False).head(10)
                     sns.barplot(x=counts.values, y=counts.index, palette='viridis', ax=ax)
