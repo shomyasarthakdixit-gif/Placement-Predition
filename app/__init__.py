@@ -4,9 +4,21 @@ from flask import Flask
 def create_app():
     app = Flask(__name__)
                 
-    # Load ML pipeline (trains models at startup)
-    from app.core.ml_pipeline import load_data_and_train
-    app.config['ML_PIPELINE'] = load_data_and_train(app.root_path)
+    # Load ML pipeline (Pre-trained models to avoid OOM on Render)
+    import joblib
+    import os
+    
+    models_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Output", "models")
+    pipeline_file = os.path.join(models_dir, "ml_pipeline_core.pkl")
+    
+    if os.path.exists(pipeline_file):
+        app.config['ML_PIPELINE'] = joblib.load(pipeline_file)
+    else:
+        # Fallback for local development if pkl is missing
+        print("[WARNING] ml_pipeline_core.pkl not found! Falling back to inline training. Render deployments will crash if this happens!")
+        from app.core.ml_pipeline import load_data_and_train
+        app.config['ML_PIPELINE'] = load_data_and_train(app.root_path)
+        
     # Load Salary Regression artifacts
     import joblib
     models_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Output", "models")
