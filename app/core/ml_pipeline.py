@@ -105,7 +105,7 @@ def load_data_and_train(root_path):
     # 6. Train Models
     rf_clf_model = Pipeline([
         ('prep', preprocessor),
-        ('clf', RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1))
+        ('clf', RandomForestClassifier(n_estimators=30, max_depth=12, min_samples_leaf=5, random_state=42, n_jobs=-1))
     ])
     print("[ML] Training Classification Model (RF)...")
     rf_clf_model.fit(X, y_cls)
@@ -136,7 +136,7 @@ def load_data_and_train(root_path):
     # if we pass y_reg, it will re-fit the TargetEncoder on y_reg, which is perfect!
     rf_reg_model = Pipeline([
         ('prep', preprocessor),
-        ('reg', RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1))
+        ('reg', RandomForestRegressor(n_estimators=30, max_depth=12, min_samples_leaf=5, random_state=42, n_jobs=-1))
     ])
     print("[ML] Training Regression Model (RF)...")
     rf_reg_model.fit(X_reg, y_reg)

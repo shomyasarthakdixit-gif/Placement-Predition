@@ -18,13 +18,6 @@ def create_app():
         print("[WARNING] ml_pipeline_core.pkl not found! Falling back to inline training. Render deployments will crash if this happens!")
         from app.core.ml_pipeline import load_data_and_train
         app.config['ML_PIPELINE'] = load_data_and_train(app.root_path)
-        
-    # Load Salary Regression artifacts
-    import joblib
-    models_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Output", "models")
-    if os.path.exists(models_dir):
-        app.config['ADVANCED_MODEL'] = joblib.load(os.path.join(models_dir, 'advanced_regression.pkl'))
-        app.config['ADVANCED_PREP'] = joblib.load(os.path.join(models_dir, 'advanced_regression_preprocessor.pkl'))
 
     # Register Blueprints
     from app.features.home.routes import home_bp

@@ -12,9 +12,8 @@ def regression_page():
     _feature_cols = ml_data.get('feature_cols', [])
     df = ml_data.get('df', pd.DataFrame())
     
-    # Load Advanced Regression artifacts
-    advanced_model = current_app.config.get('ADVANCED_MODEL')
-    advanced_prep = current_app.config.get('ADVANCED_PREP')
+    # Load the unified regression model
+    rf_reg_model = ml_data.get('rf_reg')
     
     # Default values for the form
     gender_vals = []
@@ -34,7 +33,7 @@ def regression_page():
     backlog_vals = ['No', 'Yes']
     
     result = None
-    if request.method == 'POST' and advanced_model and advanced_prep:
+    if request.method == 'POST' and rf_reg_model:
         row = {}
         for col in _feature_cols:
             val = request.form.get(col, '')
@@ -48,8 +47,7 @@ def regression_page():
                     
         X_input = pd.DataFrame([row], columns=_feature_cols)
         try:
-            X_input_processed = advanced_prep.transform(X_input)
-            base_salary = float(advanced_model.predict(X_input_processed)[0])
+            base_salary = float(rf_reg_model.predict(X_input)[0])
             
             # BUSINESS LOGIC OVERRIDE for Dashboard Responsiveness
             # Because RF uses discrete tree buckets and Projects has low importance (<0.1%)
