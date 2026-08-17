@@ -16,13 +16,36 @@
 
 <!-- ── Result Card (shown after POST) ───────────────────────── -->
 {% if result %}
-<div class="result-card {% if result.error %}result-error{% elif result.placed %}result-placed{% else %}result-notplaced{% endif %}"
+<div class="result-card {% if result.error %}result-error{% elif result.softmax %}{% if result.top_class != 'Not Placed' %}result-placed{% else %}result-notplaced{% endif %}{% elif result.placed %}result-placed{% else %}result-notplaced{% endif %}"
      id="result-anchor">
 
     {% if result.error %}
     <div class="result-icon">&#9888;</div>
     <h2>Prediction Error</h2>
     <p>{{ result.error }}</p>
+
+    {% elif result.softmax %}
+    <div class="result-icon">{% if result.top_class == 'Not Placed' %}&#128549;{% else %}&#127881;{% endif %}</div>
+    <h2>Predicted Tier: <span class="{% if result.top_class == 'Not Placed' %}highlight-notplaced{% else %}highlight-placed{% endif %}">{{ result.top_class | upper }}</span></h2>
+    
+    <div class="result-metrics">
+        {% for tier, prob in result.probs.items() %}
+        <div class="result-metric">
+            <span class="metric-val">{{ prob }}%</span>
+            <span class="metric-lbl">{{ tier }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if result.top_class != 'Not Placed' %}
+        <div class="result-metric highlight-salary" style="margin: 0 auto 22px auto; max-width: 300px;">
+            <span class="metric-val">&#8377; {{ result.salary }} LPA</span>
+            <span class="metric-lbl">Base Estimated Package</span>
+        </div>
+        <div class="result-confetti" id="confetti-area"></div>
+    {% else %}
+        <p class="result-tip">&#128161; Tip: Improve CGPA, Aptitude Score, and Internship experience to boost placement chances.</p>
+    {% endif %}
 
     {% elif result.placed %}
     <div class="result-confetti" id="confetti-area"></div>
@@ -206,7 +229,8 @@
                     <label for="model_type">Choose Algorithm:</label>
                     <select name="model_type" id="model_type">
                         <option value="rf">Random Forest (Scale-Invariant)</option>
-                        <option value="lr">Logistic Regression (Requires Scaled Features)</option>
+                        <option value="lr">Logistic Regression (Binary)</option>
+                        <option value="softmax">Multinomial Logistic Regression (Softmax 3-Tier)</option>
                     </select>
                     <p style="font-size: 0.8rem; color: #666; margin-top: 8px;">
                         <em>Notice how Logistic Regression relies heavily on the underlying StandardScaler and RobustScaler we implemented in the ML pipeline!</em>

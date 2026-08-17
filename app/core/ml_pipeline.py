@@ -31,6 +31,17 @@ def load_data_and_train(root_path):
     X = feat_df
     y_cls = df[_TARGET_CLASS]
     
+    # Define Multinomial Target
+    salary_median = df.loc[df[_TARGET_REG] > 0, _TARGET_REG].median()
+    def make_package_tier(salary):
+        if salary < 3.0: # Using 3.0 instead of 0 due to dataset bounds for placed
+            return "Not Placed"
+        elif salary < salary_median:
+            return "Standard Package"
+        return "Premium Package"
+        
+    y_multi = df[_TARGET_REG].apply(make_package_tier)
+    
     # 3. Define Advanced Categorical Encoders
     # Ordinal: CollegeTier
     ordinal_cols = ['CollegeTier']
@@ -106,6 +117,14 @@ def load_data_and_train(root_path):
     print("[ML] Training Classification Model (LR)...")
     lr_clf_model.fit(X, y_cls)
     
+    # Multinomial Classification Model (Softmax)
+    softmax_clf_model = Pipeline([
+        ('prep', preprocessor),
+        ('clf', LogisticRegression(solver="lbfgs", max_iter=1000, random_state=42))
+    ])
+    print("[ML] Training Multinomial Classification Model (Softmax)...")
+    softmax_clf_model.fit(X, y_multi)
+    
     # 7. Regression Model (Trained only on placed students)
     placed_mask = df[_TARGET_CLASS] == 1
     X_reg = feat_df.loc[placed_mask]
@@ -128,6 +147,7 @@ def load_data_and_train(root_path):
         'df': df,
         'rf_clf': rf_clf_model,
         'lr_clf': lr_clf_model,
+        'softmax_clf': softmax_clf_model,
         'rf_reg': rf_reg_model,
         'feature_cols': _feature_cols,
         'numeric_cols': _numeric_cols,

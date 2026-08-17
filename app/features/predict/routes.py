@@ -66,6 +66,7 @@ def _run_prediction(form):
     _feature_cols = ml_data['feature_cols']
     rf_clf_model = ml_data['rf_clf']
     lr_clf_model = ml_data['lr_clf']
+    softmax_clf_model = ml_data.get('softmax_clf')
     rf_reg_model = ml_data['rf_reg']
     
     model_type = form.get('model_type', 'rf')
@@ -73,9 +74,8 @@ def _run_prediction(form):
     row = {}
     for col in _feature_cols:
         val = form.get(col, '')
-        # If it's empty, and the column is numeric, default to 0.0, else empty string
         if val == '':
-            row[col] = np.nan # The pipeline imputers will handle this natively now!
+            row[col] = np.nan
         else:
             try:
                 row[col] = float(val)
@@ -85,19 +85,39 @@ def _run_prediction(form):
     import pandas as pd
     X_input = pd.DataFrame([row], columns=_feature_cols)
 
-    if model_type == 'lr':
-        placed_prob  = lr_clf_model.predict_proba(X_input)[0][1]
-        placed_class = int(lr_clf_model.predict(X_input)[0])
-    else:
-        placed_prob  = rf_clf_model.predict_proba(X_input)[0][1]
-        placed_class = int(rf_clf_model.predict(X_input)[0])
-
     salary_pred  = float(rf_reg_model.predict(X_input)[0])
     salary_pred  = round(max(3.0, min(salary_pred, 30.0)), 2)
 
-    return {
-        'placed':       placed_class,
-        'placed_prob':  round(placed_prob * 100, 1),
-        'salary':       salary_pred,
-        'error':        None
+    result_dict = {
+        'model_type': model_type,
+        'salary': salary_pred,
+        'error': None
     }
+
+    if model_type == 'softmax' and softmax_clf_model:
+        # Predict Probabilities for 3 classes
+        probs = softmax_clf_model.predict_proba(X_input)[0]
+        classes = softmax_clf_model.classes_
+        
+        # Match probabilities to their class labels
+        prob_dict = {str(c): round(p * 100, 1) for c, p in zip(classes, probs)}
+        
+        # Also get the top prediction
+        top_class = softmax_clf_model.predict(X_input)[0]
+        
+        result_dict['softmax'] = True
+        result_dict['top_class'] = top_class
+        result_dict['probs'] = prob_dict
+    else:
+        # Binary Classification
+        if model_type == 'lr':
+            placed_prob  = lr_clf_model.predict_proba(X_input)[0][1]
+            placed_class = int(lr_clf_model.predict(X_input)[0])
+        else:
+            placed_prob  = rf_clf_model.predict_proba(X_input)[0][1]
+            placed_class = int(rf_clf_model.predict(X_input)[0])
+            
+        result_dict['placed'] = placed_class
+        result_dict['placed_prob'] = round(placed_prob * 100, 1)
+
+    return result_dict
