@@ -56,7 +56,7 @@
                             {% for row in importance_df %}
                             <tr>
                                 <td>{{ row.Feature.split('__')[-1] }}</td>
-                                <td style="color: #4ade80; font-weight: 500;">{{ "%.2f"|format(row.Importance_Percent) }}%</td>
+                                <td style="color: var(--accent-primary); font-weight: 500;">{{ "%.2f"|format(row.Importance_Percent) }}%</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -80,7 +80,7 @@
                         <p>{{ result.error }}</p>
                     {% else %}
                         <p class="result-title">Predicted Salary Package:</p>
-                        <p class="result-value">&#8377; {{ result.salary }} LPA</p>
+                        <p class="result-value">{{ result.salary }} LPA</p>
                     {% endif %}
                 </div>
                 {% endif %}
@@ -211,8 +211,8 @@ table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 th { background: var(--glass-bg); padding: 12px; text-align: left; color: var(--accent-primary); }
 td { padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); }
 tr:nth-child(even) { background-color: var(--input-bg); }
-.text-positive { color: #4ade80; font-weight: 600; }
-.text-negative { color: #f87171; font-weight: 600; }
+.text-positive { color: var(--success-color); font-weight: 600; }
+.text-negative { color: var(--error-color); font-weight: 600; }
 
 /* Forms */
 .pred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -246,8 +246,8 @@ tr:nth-child(even) { background-color: var(--input-bg); }
     border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;
 }
 .result-box.error-box { background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.4); }
-.result-title { font-size: 0.9rem; color: #cbd5e1; margin-bottom: 8px; text-transform: uppercase; }
-.result-value { font-size: 2.2rem; font-weight: 800; color: #4ade80; }
+.result-title { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; }
+.result-value { font-size: 2.2rem; font-weight: 800; color: var(--success-color); }
 
 .fade-in-up { animation: fadeInUpGlass 0.7s both; }
 @keyframes fadeInUpGlass { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
