@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}Categorical Encodings | ML Dashboard{% endblock %}
+
+{% block content %}
+<!-- ── Hero Banner ─────────────────────────────────────────── -->
+<div class="dash-hero slide-in">
+    <div class="dash-hero-content">
+        <div class="dash-hero-badge"><i class="ph ph-magic-wand"></i> Advanced Preprocessing</div>
+        <h1 class="dash-hero-title">Categorical <span class="dash-accent">Encodings</span></h1>
+        <p class="dash-hero-sub">
+            Discover how we mathematically convert text categories (like "City" or "Gender") into 
+            machine-readable numbers using One-Hot Encoding, Ordinal Encoding, Target Encoding, 
+            and Hashing Encoding.
+        </p>
+    </div>
+    <div class="dash-hero-visual" style="display: flex; align-items: center; justify-content: center;">
+        <i class="ph ph-file-code" style="font-size: 8rem; color: var(--accent-primary); opacity: 0.2; animation: float 6s infinite;"></i>
+    </div>
+</div>
+
+<!-- ── Interactive Form Panel ─────────────────────────────── -->
+<div class="card fade-in delay-1">
+    <h2><i class="ph ph-sliders"></i> Algorithm Configuration</h2>
+    <form method="POST" action="{{ url_for('preprocessing.encoding_page') }}" class="eda-form" onsubmit="showLoader()">
+        <div class="stat-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+            <div class="form-group">
+                <label for="fe_column">Select Categorical Feature:</label>
+                <select name="fe_column" id="fe_column">
+                    {% for col in categorical_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="fe_encoder">Transformation Engine:</label>
+                <select name="fe_encoder" id="fe_encoder">
+                    <option value="ohe">One-Hot Encoding (Binary) — Best for low cardinality</option>
+                    <option value="ordinal">Ordinal Encoding (Rank) — Best for ordered data</option>
+                    <option value="target">Target Encoding (Mean) — Powerful for tree models</option>
+                    <option value="hashing">Hashing Encoding (Vector) — Solves dimensionality</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="text-align: right;">
+            <button type="submit" class="btn btn-primary" id="apply-btn" style="min-width: 200px;">
+                <span class="btn-text"><i class="ph ph-play"></i> Execute Transformation</span>
+                <span class="btn-loader" style="display:none;"><i class="ph ph-spinner ph-spin"></i> Processing...</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ── Results Section ────────────────────────────────────── -->
+{% if dynamic_plot %}
+<div class="card fade-in delay-2">
+    <h2><i class="ph ph-chart-polar"></i> Transformation Analysis</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 20px;">
+        Visualizing how the text categories map to numerical space.
+    </p>
+    <div style="text-align:center; padding: 20px; background: var(--input-bg); border-radius: 12px; border: 1px solid var(--border-color);">
+        <img src="data:image/png;base64,{{ dynamic_plot }}" alt="Encoding Plot" style="max-width: 100%; border-radius: 8px; filter: contrast(1.05); mix-blend-mode: screen; opacity: 0.95;">
+    </div>
+</div>
+{% endif %}
+
+{% if encoded_html %}
+<div class="card fade-in delay-3">
+    <h2><i class="ph ph-table"></i> Real-time Matrix Transformation</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 20px;">Sample of the dataset before and after encoding.</p>
+    <div class="table-wrapper">
+        {{ encoded_html | safe }}
+    </div>
+</div>
+{% endif %}
+
+<!-- ── Specific Styles ─────────────────────────────────────────────── -->
+<style>
+/* Re-use animations from index */
+.slide-in {
+    animation: slide-in-bottom 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+
+@keyframes slide-in-bottom {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+.ph-spin {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Hero reuse */
+.dash-hero {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 40px var(--shadow-color);
+    backdrop-filter: blur(16px);
+}
+.dash-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, var(--accent-primary) 0%, transparent 60%);
+    opacity: 0.1;
+    pointer-events: none;
+}
+.dash-hero-content { flex: 1; position: relative; z-index: 1; }
+.dash-hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--input-bg); border: 1px solid var(--border-color);
+    color: var(--accent-primary); padding: 6px 16px; border-radius: 20px;
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 16px;
+}
+.dash-hero-title {
+    font-size: 2.4rem; font-weight: 800; color: var(--text-primary);
+    margin-bottom: 12px; line-height: 1.2; letter-spacing: -1px;
+}
+.dash-accent {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.dash-hero-sub {
+    font-size: 1rem; color: var(--text-secondary); line-height: 1.6; max-width: 600px;
+}
+@media (max-width: 800px) {
+    .dash-hero-visual { display: none !important; }
+    .stat-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Ensure pandas html table inherits our table styling */
+.table-wrapper table {
+    width: 100%; border-collapse: collapse; font-size: 0.9rem; color: var(--text-primary);
+}
+.table-wrapper table thead th {
+    background: var(--glass-bg); padding: 14px; text-align: left;
+    font-weight: 600; color: var(--text-secondary); border-bottom: 1px solid var(--border-color);
+}
+.table-wrapper table tbody tr {
+    transition: background-color var(--transition-fast);
+    border-bottom: 1px solid var(--border-color);
+}
+.table-wrapper table tbody tr:hover { background-color: var(--input-bg); }
+.table-wrapper table tbody td { padding: 12px 14px; }
+
+[data-theme="light"] .hologram-plot {
+    mix-blend-mode: normal !important;
+}
+</style>
+
+<script>
+function showLoader() {
+    document.querySelector('.btn-text').style.display = 'none';
+    document.querySelector('.btn-loader').style.display = 'inline-flex';
+    document.querySelector('.btn-loader').style.alignItems = 'center';
+    document.querySelector('.btn-loader').style.gap = '8px';
+    document.getElementById('apply-btn').style.opacity = '0.8';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const savedCol = "{{ request.form.get('fe_column', '') }}";
+    const savedEncoder = "{{ request.form.get('fe_encoder', '') }}";
+    if (savedCol) document.getElementById('fe_column').value = savedCol;
+    if (savedEncoder) document.getElementById('fe_encoder').value = savedEncoder;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+{% block title %}Scaling & Standardization | ML Dashboard{% endblock %}
+
+{% block content %}
+<div class="scaling-dashboard">
+    <!-- ── Hero Glass Panel ─────────────────────────────── -->
+    <div class="hero-glass fade-in-up">
+        <div class="hero-badge pulse-glow">&#128207; Advanced Preprocessing</div>
+        <h1 class="text-gradient">Scaling &amp; Standardization</h1>
+        <p class="hero-subtext">
+           Discover the mathematical elegance behind feature transformation. Explore how 
+           <span class="highlight-text">StandardScaler</span>, <span class="highlight-text">RobustScaler</span>, 
+           and <span class="highlight-text">MinMaxScaler</span> preserve geometry while normalizing scale.
+        </p>
+    </div>
+
+    <!-- ── Interactive Form Panel ─────────────────────────────── -->
+    <div class="glass-card form-card fade-in-up" style="animation-delay: 0.1s;">
+        <div class="card-header">
+            <h2 class="glow-text">&#9881; Algorithm Configuration</h2>
+        </div>
+        <form method="POST" action="{{ url_for('preprocessing.scaling_page') }}" class="glass-form" onsubmit="showLoader()">
+            <div class="glass-grid">
+                <div class="glass-field">
+                    <label for="fe_column">Select Feature Space:</label>
+                    <div class="select-wrapper">
+                        <select name="fe_column" id="fe_column">
+                            {% for col in numeric_cols %}
+                            {% if col not in ['StudentID', 'IsAnomaly', 'PlacementStatus'] %}
+                            <option value="{{ col }}">{{ col }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="glass-field">
+                    <label for="fe_scaler">Transformation Engine:</label>
+                    <div class="select-wrapper">
+                        <select name="fe_scaler" id="fe_scaler">
+                            <option value="standard">StandardScaler (Z-Score) — Optimal for Gaussian</option>
+                            <option value="robust">RobustScaler (IQR) — Outlier Resistant</option>
+                            <option value="minmax">MinMaxScaler [0,1] — Bounded Normalization</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-action">
+                <button type="submit" class="btn-ultra" id="apply-btn">
+                    <span class="btn-text">Execute Transformation</span>
+                    <span class="btn-loader" style="display:none;"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ── Results Section ────────────────────────────────────── -->
+    {% if dynamic_plot %}
+    <div class="glass-card visual-card fade-in-up" style="animation-delay: 0.2s;">
+        <div class="card-header">
+            <h2 class="glow-text">&#128200; Density Preservation Analysis</h2>
+            <p class="sub-note">
+                <strong>Key Takeaway:</strong> Scaling alters magnitude but preserves topological structure. The gradient curves remain identical.
+            </p>
+        </div>
+        <div class="plot-container">
+            <img src="data:image/png;base64,{{ dynamic_plot }}" alt="KDE Comparison Plot" class="hologram-plot">
+        </div>
+    </div>
+    {% endif %}
+
+    {% if metrics_html %}
+    <div class="metrics-grid">
+        <div class="glass-card fade-in-up" style="animation-delay: 0.3s;">
+            <div class="card-header">
+                <h2 class="glow-text">&#128202; Statistical Proof</h2>
+            </div>
+            <div class="table-glass-wrapper metrics-table-wrap">
+                {{ metrics_html | safe }}
+            </div>
+        </div>
+        
+        <div class="glass-card fade-in-up" style="animation-delay: 0.4s;">
+            <div class="card-header">
+                <h2 class="glow-text">&#128196; Real-time Sample</h2>
+            </div>
+            <div class="table-glass-wrapper sample-table-wrap">
+                {{ scaled_html | safe }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ── Ultra Pro Max Styles ─────────────────────────────────────────────── -->
+<style>
+/* Dashboard Container & Background */
+.scaling-dashboard {
+    /* Deep space animated mesh gradient */
+    background: radial-gradient(circle at 15% 50%, rgba(31, 28, 44, 1), transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(20, 24, 82, 1), transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(15, 32, 39, 1), transparent 50%),
+                #0a0a0f;
+    background-size: 200% 200%;
+    animation: meshFlow 15s ease infinite;
+    min-height: calc(100vh - 80px);
+    border-radius: 20px;
+    padding: 32px 40px;
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+    color: #e2e8f0;
+    font-family: 'Inter', -apple-system, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes meshFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Glass Panels */
+.hero-glass, .glass-card {
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 24px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s;
+}
+.hero-glass { padding: 40px; }
+.glass-card { padding: 28px 32px; }
+
+.glass-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Typography & Glow */
+.text-gradient {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+}
+.glow-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
+    margin-bottom: 4px;
+}
+.hero-subtext {
+    font-size: 1.05rem;
+    color: #94a3b8;
+    line-height: 1.7;
+    max-width: 700px;
+}
+.highlight-text {
+    color: #4facfe;
+    font-weight: 600;
+}
+.sub-note {
+    color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px;
+}
+
+/* Badges */
+.hero-badge {
+    display: inline-block;
+    background: rgba(79, 172, 254, 0.15);
+    border: 1px solid rgba(79, 172, 254, 0.4);
+    color: #4facfe;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+.pulse-glow {
+    animation: pulse 2s infinite alternate;
+}
+@keyframes pulse {
+    from { box-shadow: 0 0 10px rgba(79,172,254,0.2); }
+    to { box-shadow: 0 0 25px rgba(79,172,254,0.6); }
+}
+
+/* Form Elements */
+.glass-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.glass-field label {
+    display: block; font-size: 0.9rem; font-weight: 600; color: #cbd5e1; margin-bottom: 8px;
+}
+.select-wrapper { position: relative; }
+.select-wrapper::after {
+    content: '▼'; font-size: 0.7rem; color: #4facfe; position: absolute;
+    right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none;
+}
+.glass-field select {
+    width: 100%; padding: 14px 20px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff; font-size: 0.95rem;
+    appearance: none; outline: none;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+.glass-field select:focus {
+    border-color: #4facfe;
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.25), inset 0 2px 4px rgba(0,0,0,0.2);
+    background: rgba(15, 23, 42, 0.8);
+}
+.glass-field select option { background: #0f172a; color: #fff; }
+
+/* Ultra Button */
+.form-action { text-align: right; }
+.btn-ultra {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #000; border: none; padding: 14px 36px;
+    border-radius: 14px; font-size: 1.05rem; font-weight: 800;
+    cursor: pointer; position: relative; overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3), inset 0 1px 0 rgba(255,255,255,0.4);
+    display: inline-flex; align-items: center; justify-content: center; min-width: 240px;
+}
+.btn-ultra::before {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.6s;
+}
+.btn-ultra:hover::before { left: 100%; }
+.btn-ultra:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(79, 172, 254, 0.5), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+/* Loader */
+.btn-loader {
+    width: 20px; height: 20px; border: 3px solid rgba(0,0,0,0.2);
+    border-top-color: #000; border-radius: 50%;
+    animation: spin 0.8s linear infinite; display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Hologram Plot */
+.plot-container {
+    text-align: center; background: rgba(0,0,0,0.3);
+    padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);
+    position: relative;
+}
+.hologram-plot {
+    max-width: 100%; border-radius: 8px; filter: contrast(1.05);
+    mix-blend-mode: screen; /* Makes white background of matplotlib transparent on dark! */
+    opacity: 0.95;
+}
+
+/* Metrics Grid & Tables */
+.metrics-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+}
+.table-glass-wrapper {
+    overflow: hidden; border-radius: 12px;
+    border: 1px solid rgba(79, 172, 254, 0.3); /* Stronger blue tinted border */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.table-glass-wrapper table {
+    width: 100%; border-collapse: collapse; font-size: 0.9rem;
+    margin-bottom: 0;
+}
+.table-glass-wrapper table thead th {
+    background: rgba(0,0,0,0.4) !important; 
+    padding: 14px; text-align: left;
+    font-weight: 700; color: #4facfe !important; 
+    border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+.table-glass-wrapper table tbody tr {
+    background-color: rgba(15,23,42,0.3) !important;
+}
+.table-glass-wrapper table tbody tr:nth-child(even) {
+    background-color: rgba(15,23,42,0.5) !important;
+}
+.table-glass-wrapper table tbody td {
+    padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    color: #f8fafc !important; 
+}
+.table-glass-wrapper table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+.table-glass-wrapper table tbody tr:hover, 
+.table-glass-wrapper table tbody tr:hover td { 
+    background-color: rgba(79, 172, 254, 0.15) !important; 
+    color: #fff !important; 
+}
+
+/* Highlight proof metrics */
+.metrics-table-wrap .data-table tr:nth-child(3) td, /* Mean row */
+.metrics-table-wrap .data-table tr:nth-child(4) td /* Std Dev row */ {
+    font-weight: 700;
+}
+
+/* Animations */
+.fade-in-up {
+    animation: fadeInUpGlass 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes fadeInUpGlass {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<script>
+function showLoader() {
+    document.querySelector('.btn-text').style.display = 'none';
+    document.querySelector('.btn-loader').style.display = 'inline-block';
+    document.getElementById('apply-btn').style.opacity = '0.8';
+}
+
+// Restore selections & conditional highlighting
+window.addEventListener('DOMContentLoaded', () => {
+    const savedCol = "{{ request.form.get('fe_column', '') }}";
+    const savedScaler = "{{ request.form.get('fe_scaler', '') }}";
+    if (savedCol) document.getElementById('fe_column').value = savedCol;
+    if (savedScaler) document.getElementById('fe_scaler').value = savedScaler;
+
+    // Highlight mathematically significant results (Proof of concept)
+    if(savedScaler === 'standard') {
+        const rows = document.querySelectorAll('.metrics-table-wrap .data-table tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if(cells.length > 0) {
+                if(cells[0].innerText === 'Mean') {
+                    cells[2].style.color = '#2ecc71'; // Green perfect 0
+                    cells[2].innerHTML += ' &nbsp;&#10004;';
+                }
+                if(cells[0].innerText === 'Std Dev') {
+                    cells[2].style.color = '#2ecc71'; // Green perfect 1
+                    cells[2].innerHTML += ' &nbsp;&#10004;';
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

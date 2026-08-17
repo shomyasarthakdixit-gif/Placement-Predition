@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ML Dashboard{% endblock %}</title>
+    <!-- Phosphor Icons for premium aesthetic -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Prevent theme flashing on load -->
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-left">
+        <i class="ph-fill ph-chart-line-up header-icon"></i>
+        <div class="header-inner">
+            <h1>ML Dataset Dashboard</h1>
+            <p>Dataset: <strong>Placement Prediction (50k)</strong></p>
+        </div>
+    </div>
+    <div class="header-right">
+        <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle Theme">
+            <i class="ph ph-moon"></i>
+        </button>
+    </div>
+</header>
+
+<!-- Main Layout -->
+<div class="layout">
+
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+        <h2>Navigation</h2>
+
+        <!-- Note: We check if the request endpoint exists so the active state is set correctly. -->
+        <a href="{{ url_for('home.home') }}" class="menu-btn {% if request.endpoint == 'home.home' %}active{% endif %}">
+            <i class="ph ph-house"></i> Home
+        </a>
+        <a href="{{ url_for('home.load_page') }}" class="menu-btn {% if request.endpoint == 'home.load_page' %}active{% endif %}">
+            <i class="ph ph-database"></i> Load Data
+        </a>
+        <a href="{{ url_for('eda.eda_page') }}" class="menu-btn {% if request.endpoint == 'eda.eda_page' %}active{% endif %}">
+            <i class="ph ph-chart-bar"></i> EDA
+        </a>
+        <a href="{{ url_for('preprocessing.feature_engg_page') }}" class="menu-btn {% if request.endpoint == 'preprocessing.feature_engg_page' %}active{% endif %}">
+            <i class="ph ph-gear"></i> Feature Engg
+        </a>
+        <a href="{{ url_for('preprocessing.scaling_page') }}" class="menu-btn menu-sub {% if request.endpoint == 'preprocessing.scaling_page' %}active{% endif %}">
+            <i class="ph ph-arrows-out-line-horizontal"></i> Scaling &amp; Standardize
+        </a>
+        <a href="{{ url_for('preprocessing.encoding_page') }}" class="menu-btn menu-sub {% if request.endpoint == 'preprocessing.encoding_page' %}active{% endif %}">
+            <i class="ph ph-text-aa"></i> Categorical Encodings
+        </a>
+        <a href="{{ url_for('regression.regression_page') }}" class="menu-btn {% if request.endpoint == 'regression.regression_page' %}active{% endif %}">
+            <i class="ph ph-trend-up"></i> Advanced Salary Prediction
+        </a>
+        <a href="{{ url_for('predict.predict_page') }}" class="menu-btn {% if request.endpoint == 'predict.predict_page' %}active{% endif %}">
+            <i class="ph ph-rocket-launch"></i> Predict
+        </a>
+    </aside>
+
+    <!-- Page Content -->
+    <main class="content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>&copy; {{ moment_year|default('2026') }} Machine Learning Dashboard &mdash; Premium Portfolio Build</p>
+</footer>
+
+<script>
+    // Theme toggle script
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = themeToggleBtn.querySelector('i');
+
+    function updateThemeIcon(theme) {
+        if (theme === 'light') {
+            themeIcon.className = 'ph ph-sun';
+        } else {
+            themeIcon.className = 'ph ph-moon';
+        }
+    }
+
+    // Set initial icon based on HTML data-theme
+    updateThemeIcon(document.documentElement.getAttribute('data-theme'));
+
+    themeToggleBtn.addEventListener('click', () => {
+        let currentTheme = document.documentElement.getAttribute('data-theme');
+        let targetTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        document.documentElement.setAttribute('data-theme', targetTheme);
+        localStorage.setItem('theme', targetTheme);
+        updateThemeIcon(targetTheme);
+    });
+</script>
+
+</body>
+</html>

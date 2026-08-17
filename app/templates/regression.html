@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block title %}Salary Regression | ML Dashboard{% endblock %}
+
+{% block content %}
+<div class="regression-dashboard">
+    <!-- ── Hero Panel ─────────────────────────────── -->
+    <div class="hero-glass fade-in-up">
+        <div class="hero-badge pulse-glow">&#128200; Predictive Analysis</div>
+        <h1 class="text-gradient">Advanced Salary Prediction</h1>
+        <p class="hero-subtext">
+           This dedicated module isolates the students who were successfully placed and uses a 
+           <span class="highlight-text">Random Forest Regressor</span> to predict their 
+           <strong>Salary Package (LPA)</strong> with high accuracy.
+        </p>
+    </div>
+
+    <div class="regression-layout">
+        <!-- ── Left Column: Metrics & Coefficients ── -->
+        <div class="regression-left fade-in-up" style="animation-delay: 0.1s;">
+            <!-- Metrics Card -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="glow-text">&#128202; Model Evaluation Metrics</h2>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <span class="metric-val">{{ metrics.r2 }}</span>
+                        <span class="metric-lbl">R&sup2; Score</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val">{{ metrics.rmse }}</span>
+                        <span class="metric-lbl">RMSE (LPA)</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val">{{ metrics.mae }}</span>
+                        <span class="metric-lbl">MAE (LPA)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coefficients Table -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-clipboard-list"></i> Top Feature Importances</h3>
+                    <p>Shows the percentage contribution of each feature towards the salary estimate.</p>
+                </div>
+                <div class="metrics-content">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Importance (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in importance_df %}
+                            <tr>
+                                <td>{{ row.Feature.split('__')[-1] }}</td>
+                                <td style="color: #4ade80; font-weight: 500;">{{ "%.2f"|format(row.Importance_Percent) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Right Column: Interactive Prediction ── -->
+        <div class="regression-right fade-in-up" style="animation-delay: 0.3s;">
+            <div class="glass-card fade-in-up" style="animation-delay: 0.2s;">
+                <div class="card-header">
+                    <h2 class="glow-text">&#9881; Test the Model</h2>
+                    <p class="sub-note">Adjust parameters to see the Advanced Regressor salary estimate instantly.</p>
+                </div>
+
+                {% if result %}
+                <div class="result-box {% if result.error %}error-box{% endif %}">
+                    {% if result.error %}
+                        <p class="result-title">&#9888; Error</p>
+                        <p>{{ result.error }}</p>
+                    {% else %}
+                        <p class="result-title">Predicted Salary Package:</p>
+                        <p class="result-value">&#8377; {{ result.salary }} LPA</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('regression.regression_page') }}" class="glass-form">
+                    <div class="pred-grid">
+                        <div class="glass-field">
+                            <label>CGPA</label>
+                            <input type="number" step="0.01" name="CGPA" placeholder="e.g. 8.5" value="{{ form_data.get('CGPA', '') }}" required>
+                        </div>
+                        <div class="glass-field">
+                            <label>Aptitude Score</label>
+                            <input type="number" step="0.1" name="AptitudeTestScore" placeholder="e.g. 85" value="{{ form_data.get('AptitudeTestScore', '') }}">
+                        </div>
+                        <div class="glass-field">
+                            <label>Coding Score</label>
+                            <input type="number" step="0.1" name="CodingTestScore" placeholder="e.g. 90" value="{{ form_data.get('CodingTestScore', '') }}">
+                        </div>
+                        <div class="glass-field">
+                            <label>Internships</label>
+                            <input type="number" name="Internships" placeholder="e.g. 2" value="{{ form_data.get('Internships', '') }}">
+                        </div>
+                        <div class="glass-field">
+                            <label>Projects</label>
+                            <input type="number" name="Projects" placeholder="e.g. 3" value="{{ form_data.get('Projects', '') }}">
+                        </div>
+                        <div class="glass-field">
+                            <label>City</label>
+                            <div class="select-wrapper">
+                                <select name="City">
+                                    {% for v in city_vals %}<option value="{{ v }}" {% if form_data.get('City') == v %}selected{% endif %}>{{ v }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="glass-field">
+                            <label>Specialisation</label>
+                            <div class="select-wrapper">
+                                <select name="Specialisation">
+                                    {% for v in spec_vals %}<option value="{{ v }}" {% if form_data.get('Specialisation') == v %}selected{% endif %}>{{ v }}</option>{% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-action" style="margin-top: 20px;">
+                        <button type="submit" class="btn-ultra" style="width: 100%;">Predict Salary</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Styles ─────────────────────────────────────────────── -->
+<style>
+/* Dashboard Container & Background */
+.regression-dashboard {
+    background: var(--bg-primary);
+    border-radius: 20px; padding: 32px 40px; color: var(--text-primary); min-height: 80vh;
+    transition: background 0.3s, color 0.3s;
+}
+
+html:not([data-theme="light"]) .regression-dashboard {
+    background: radial-gradient(circle at 15% 50%, rgba(10, 44, 44, 1), transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(20, 24, 82, 1), transparent 50%),
+                #0a0a0f;
+}
+
+.regression-layout {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+}
+@media (max-width: 900px) {
+    .regression-layout { grid-template-columns: 1fr; }
+}
+
+/* Glass Panels */
+.hero-glass, .glass-card {
+    background: var(--card-bg); backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color); border-radius: 24px;
+    box-shadow: 0 24px 40px var(--shadow-color); margin-bottom: 28px;
+    padding: 28px 32px;
+}
+.hero-glass { padding: 40px; }
+
+/* Typography */
+.text-gradient {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-size: 2.2rem; font-weight: 800; margin-bottom: 12px;
+}
+.glow-text {
+    font-size: 1.3rem; font-weight: 700; color: var(--text-primary);
+    margin-bottom: 4px;
+}
+.hero-subtext { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.6; }
+.highlight-text { color: var(--accent-primary); font-weight: 600; }
+.sub-note { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; }
+
+/* Badges */
+.hero-badge {
+    display: inline-block; background: rgba(79, 172, 254, 0.15);
+    border: 1px solid rgba(79, 172, 254, 0.4); color: var(--accent-primary);
+    padding: 6px 16px; border-radius: 30px; font-size: 0.8rem; font-weight: 700;
+    margin-bottom: 16px; text-transform: uppercase;
+}
+.pulse-glow { animation: pulse 2s infinite alternate; }
+@keyframes pulse {
+    from { box-shadow: 0 0 10px rgba(79, 172, 254, 0.2); }
+    to { box-shadow: 0 0 25px rgba(79, 172, 254, 0.6); }
+}
+
+/* Metrics */
+.metrics-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.metric-box {
+    background: var(--input-bg); border: 1px solid var(--border-color);
+    border-radius: 12px; padding: 20px; text-align: center;
+}
+.metric-val { display: block; font-size: 1.8rem; font-weight: 800; color: var(--accent-primary); }
+.metric-lbl { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px; text-transform: uppercase;}
+
+/* Tables */
+.table-glass-wrapper {
+    overflow: hidden; border-radius: 12px;
+    border: 1px solid var(--border-color); 
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th { background: var(--glass-bg); padding: 12px; text-align: left; color: var(--accent-primary); }
+td { padding: 12px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); }
+tr:nth-child(even) { background-color: var(--input-bg); }
+.text-positive { color: #4ade80; font-weight: 600; }
+.text-negative { color: #f87171; font-weight: 600; }
+
+/* Forms */
+.pred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.glass-field label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; }
+.glass-field input, .glass-field select {
+    width: 100%; padding: 10px 14px; background: var(--input-bg);
+    border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary);
+    outline: none; transition: border-color 0.3s;
+}
+.glass-field input:focus, .glass-field select:focus { border-color: var(--accent-primary); }
+.select-wrapper { position: relative; }
+.select-wrapper::after {
+    content: '▼'; font-size: 0.7rem; color: var(--accent-primary); position: absolute;
+    right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none;
+}
+.glass-field select { appearance: none; }
+.glass-field select option { background: var(--bg-secondary); color: var(--text-primary); }
+
+/* Buttons */
+.btn-ultra {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #fff; border: none; padding: 14px; border-radius: 12px;
+    font-size: 1.05rem; font-weight: 800; cursor: pointer;
+    box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3); transition: transform 0.2s;
+}
+.btn-ultra:hover { transform: translateY(-2px); }
+
+/* Result Box */
+.result-box {
+    background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.4);
+    border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;
+}
+.result-box.error-box { background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.4); }
+.result-title { font-size: 0.9rem; color: #cbd5e1; margin-bottom: 8px; text-transform: uppercase; }
+.result-value { font-size: 2.2rem; font-weight: 800; color: #4ade80; }
+
+.fade-in-up { animation: fadeInUpGlass 0.7s both; }
+@keyframes fadeInUpGlass { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+{% endblock %}
