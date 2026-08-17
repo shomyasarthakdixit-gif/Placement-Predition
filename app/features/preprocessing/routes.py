@@ -12,7 +12,7 @@ preprocessing_bp = Blueprint('preprocessing', __name__)
 
 def _fig_to_b64(fig):
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', dpi=110, bbox_inches='tight', transparent=True)
+    fig.savefig(buf, format='png', dpi=110, bbox_inches='tight', transparent=False)
     buf.seek(0)
     encoded = base64.b64encode(buf.getvalue()).decode('utf-8')
     plt.close(fig)

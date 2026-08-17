@@ -14,7 +14,7 @@ _TARGET_CLASS = 'PlacementStatus'
 
 def _fig_to_b64(fig):
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', dpi=110, bbox_inches='tight', transparent=True)
+    fig.savefig(buf, format='png', dpi=110, bbox_inches='tight', transparent=False)
     buf.seek(0)
     encoded = base64.b64encode(buf.getvalue()).decode('utf-8')
     plt.close(fig)
@@ -118,8 +118,11 @@ def eda_page():
                 dynamic_plot = _fig_to_b64(fig)
 
         elif operation == 'mv_heatmap':
+            plt.style.use('dark_background')
             num_df = df.select_dtypes(include='number').drop(columns=['StudentID', 'IsAnomaly'], errors='ignore')
             fig, ax = plt.subplots(figsize=(14, 11))
+            fig.patch.set_facecolor('#1e1e2f')
+            ax.patch.set_facecolor('#1e1e2f')
             mask = np.triu(np.ones_like(num_df.corr(), dtype=bool))
             sns.heatmap(num_df.corr(), mask=mask, annot=True, fmt='.2f', cmap='coolwarm', center=0, linewidths=0.5, annot_kws={'size': 7}, ax=ax)
             ax.set_title('Full Correlation Heatmap', fontsize=14, fontweight='bold', pad=16)
@@ -127,14 +130,15 @@ def eda_page():
             dynamic_plot = _fig_to_b64(fig)
 
         elif operation == 'mv_pairplot':
+            plt.style.use('dark_background')
             cols = request.form.getlist('mv_pairplot_cols')
             if len(cols) >= 2:
                 sample = df[cols + [_TARGET_CLASS]].dropna().sample(min(2000, len(df)), random_state=42)
                 sample[_TARGET_CLASS] = sample[_TARGET_CLASS].map({0: 'Not Placed', 1: 'Placed'})
                 g = sns.pairplot(sample, hue=_TARGET_CLASS, palette={'Placed': '#1a7fcf', 'Not Placed': '#e74c3c'}, plot_kws={'alpha': 0.45, 's': 18}, diag_kind='kde')
-                g.fig.patch.set_alpha(0.0)
+                g.fig.patch.set_facecolor('#1e1e2f')
                 for ax in g.axes.flatten():
-                    ax.patch.set_alpha(0.0)
+                    ax.patch.set_facecolor('#1e1e2f')
                 dynamic_plot = _fig_to_b64(g.fig)
             else:
                 eda_output = '<p style="color:#c0392b;">Please select at least 2 numeric columns.</p>'
@@ -144,8 +148,8 @@ def eda_page():
             if col_x and col_hue:
                 plt.style.use('dark_background')
                 fig, ax = plt.subplots(figsize=(10, 5))
-                fig.patch.set_alpha(0.0)
-                ax.patch.set_alpha(0.0)
+                fig.patch.set_facecolor('#1e1e2f')
+                ax.patch.set_facecolor('#1e1e2f')
                 sns.countplot(data=df, x=col_x, hue=col_hue, palette='Set2', ax=ax)
                 ax.set_title(f'Grouped Bar Chart — {col_x} by {col_hue}', fontsize=14, fontweight='bold')
                 plt.xticks(rotation=30, ha='right'); plt.tight_layout()
@@ -154,7 +158,10 @@ def eda_page():
         elif operation == 'mv_boxgroup':
             col_num, col_grp, col_hue = request.form.get('mv_box_num'), request.form.get('mv_box_grp'), request.form.get('mv_box_hue')
             if col_num and col_grp and pd.api.types.is_numeric_dtype(df[col_num]):
+                plt.style.use('dark_background')
                 fig, ax = plt.subplots(figsize=(11, 6))
+                fig.patch.set_facecolor('#1e1e2f')
+                ax.patch.set_facecolor('#1e1e2f')
                 sns.boxplot(data=df, x=col_grp, y=col_num, hue=col_hue, palette='Set3', ax=ax)
                 plt.xticks(rotation=30, ha='right'); plt.tight_layout()
                 dynamic_plot = _fig_to_b64(fig)
@@ -162,8 +169,11 @@ def eda_page():
         elif operation == 'mv_strip':
             col_x, col_y, col_hue = request.form.get('mv_strip_x'), request.form.get('mv_strip_y'), request.form.get('mv_strip_hue')
             if col_x and col_y and pd.api.types.is_numeric_dtype(df[col_y]):
+                plt.style.use('dark_background')
                 sample = df.sample(min(3000, len(df)), random_state=1)
                 fig, ax = plt.subplots(figsize=(10, 6))
+                fig.patch.set_facecolor('#1e1e2f')
+                ax.patch.set_facecolor('#1e1e2f')
                 sns.stripplot(data=sample, x=col_x, y=col_y, hue=col_hue, palette='husl', jitter=True, size=4, alpha=0.65, ax=ax)
                 plt.xticks(rotation=30, ha='right'); plt.tight_layout()
                 dynamic_plot = _fig_to_b64(fig)
@@ -171,7 +181,11 @@ def eda_page():
         elif operation == 'mv_facet':
             col_num, col_row = request.form.get('mv_facet_num'), request.form.get('mv_facet_row')
             if col_num and col_row and pd.api.types.is_numeric_dtype(df[col_num]):
+                plt.style.use('dark_background')
                 g = sns.FacetGrid(df, col=col_row, col_wrap=3, height=3.5, sharey=False)
+                g.fig.patch.set_facecolor('#1e1e2f')
+                for ax in g.axes.flatten():
+                    ax.patch.set_facecolor('#1e1e2f')
                 g.map(sns.histplot, col_num, bins=25, color='#1a7fcf', edgecolor='white')
                 plt.tight_layout()
                 dynamic_plot = _fig_to_b64(g.fig)
