@@ -7,3 +7,6 @@ scikit-learn
 category_encoders
 gunicorn
 joblib
+xgboost
+shap
+umap-learn

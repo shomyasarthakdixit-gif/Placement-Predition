@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Predict Placement | ML Dashboard{% endblock %}
+{% block title %}{{ model_title }} | ML Dashboard{% endblock %}
 
 {% block content %}
 
@@ -7,10 +7,8 @@
 <div class="pred-hero">
     <div class="pred-hero-inner">
         <div class="pred-hero-badge">&#129302; AI-Powered Prediction</div>
-        <h1>Student Placement Predictor</h1>
-        <p>Fill in the student profile below. Our <strong>Random Forest model</strong> (trained on 50,000 records)
-           will predict whether the student will be <strong>placed</strong> and estimate the
-           <strong>salary package</strong> if placed.</p>
+        <h1>{{ model_title }}</h1>
+        <p>{{ model_desc }}</p>
     </div>
 </div>
 
@@ -98,8 +96,8 @@
 
 <!-- ── Input Form ────────────────────────────────────────────── -->
 <div class="card">
-    <h2>&#128203; Student Profile Input</h2>
-    <form method="POST" action="{{ url_for('predict.predict_page') }}" class="pred-form" id="pred-form">
+    <h2>&#128203; Student Profile Input ({{ model_title }})</h2>
+    <form method="POST" action="{{ action_url }}" class="pred-form" id="pred-form">
 
         <!-- SECTION: Personal & College Info -->
         <div class="pred-section">
@@ -219,66 +217,17 @@
             </div>
         </div>
 
-        <!-- SECTION: Model Selection -->
-        <div class="pred-section" style="margin-top: 16px; border-color: #1a7fcf;">
-            <div class="pred-section-title" style="background: linear-gradient(135deg, #1a7fcf, #0f3460);">
-                &#9881; Model Selection
-            </div>
-            <div class="pred-grid" style="grid-template-columns: 1fr;">
-                <div class="pred-field">
-                    <label for="model_type">Choose Algorithm:</label>
-                    <select name="model_type" id="model_type">
-                        <option value="rf">Random Forest (Tree, Scale-Invariant)</option>
-                        <option value="lr">Logistic Regression (Linear, Binary)</option>
-                        <option value="ridge">Ridge Logistic Regression (L2 Penalty)</option>
-                        <option value="lasso">Lasso Logistic Regression (L1 Penalty, Sparse)</option>
-                        <option value="elasticnet">ElasticNet Logistic Regression (L1+L2)</option>
-                        <option value="dt">Decision Tree (Tree, Non-Linear)</option>
-                        <option value="gb">Gradient Boosting (Tree Ensemble, High Accuracy)</option>
-                        <option value="xgb">XGBoost (Tree Ensemble, Advanced)</option>
-                        <option value="softmax">Multinomial Logistic Regression (Softmax 3-Tier)</option>
-                    </select>
-                    <p style="font-size: 0.8rem; color: #666; margin-top: 8px;">
-                        <em>Linear models rely heavily on the underlying StandardScaler and RobustScaler. Tree models do not!</em>
-                    </p>
-                </div>
-            </div>
-        </div>
-
         <div style="text-align: center; margin-top: 10px;">
             <button type="submit" class="btn-predict">&#129302; Predict Placement &amp; Package</button>
         </div>
     </form>
 </div>
 
-<!-- ── Batch Prediction ──────────────────────────────────────── -->
-<div class="card" style="margin-top: 24px;">
-    <h2>&#128193; Batch Prediction</h2>
-    <p style="color:var(--text-secondary); margin-bottom:16px;">Upload a CSV file containing multiple student profiles. The model will run inference on all rows and return a CSV with predictions.</p>
-    <form method="POST" action="{{ url_for('predict.batch_predict') }}" enctype="multipart/form-data" class="pred-section" style="padding: 20px;">
-        <div class="pred-field" style="margin-bottom: 16px;">
-            <label for="model_type_batch">Choose Algorithm for Batch:</label>
-            <select name="model_type" id="model_type_batch">
-                <option value="rf">Random Forest</option>
-                <option value="xgb">XGBoost</option>
-                <option value="gb">Gradient Boosting</option>
-                <option value="lr">Logistic Regression</option>
-                <option value="ridge">Ridge Logistic</option>
-                <option value="lasso">Lasso Logistic</option>
-            </select>
-        </div>
-        <div class="pred-field" style="margin-bottom: 16px;">
-            <input type="file" name="file" accept=".csv" required>
-        </div>
-        <button type="submit" class="btn-predict" style="padding: 10px 24px; font-size: 0.95rem;">&#128229; Run Batch Prediction</button>
-    </form>
-</div>
-
 <!-- ── Feature Importance Card ──────────────────────────────── -->
 {% if feature_importance %}
 <div class="card">
-    <h2>&#128200; Top Features Influencing Placement</h2>
-    <p style="color:var(--text-secondary); margin-bottom:16px;">Based on the Random Forest model's feature importances (top 12):</p>
+    <h2>&#128200; Feature Importances ({{ model_title }})</h2>
+    <p style="color:var(--text-secondary); margin-bottom:16px;">Based on the model's coefficients or feature importances (top 12):</p>
     <div class="fi-list">
         {% for fi in feature_importance %}
         <div class="fi-row">

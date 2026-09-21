@@ -7,9 +7,9 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
-from flask import Blueprint, render_template, request, send_from_directory, current_app
+from flask import render_template, request, send_from_directory, current_app
+from . import m1_bp
 
-eda_bp = Blueprint('eda', __name__)
 _TARGET_CLASS = 'PlacementStatus'
 
 def _fig_to_b64(fig):
@@ -20,7 +20,7 @@ def _fig_to_b64(fig):
     plt.close(fig)
     return encoded
 
-@eda_bp.route('/eda', methods=['GET', 'POST'])
+@m1_bp.route('/eda', methods=['GET', 'POST'])
 def eda_page():
     ml_data = current_app.config['ML_PIPELINE']
     df = ml_data['df']
@@ -198,7 +198,7 @@ def eda_page():
                            categorical_cols=_categorical_cols,
                            all_cols=df.columns.tolist())
 
-@eda_bp.route('/plots/<filename>')
+@m1_bp.route('/plots/<filename>')
 def serve_plot(filename):
     PLOT_PATH = os.path.join(os.path.dirname(current_app.root_path), "Output", "plot")
     return send_from_directory(PLOT_PATH, filename)

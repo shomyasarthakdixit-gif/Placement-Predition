@@ -7,11 +7,46 @@
     <!-- Phosphor Icons for premium aesthetic -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Prevent theme flashing on load -->
     <script>
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
+    <style>
+        .menu-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin: 20px 0 8px 15px;
+        }
+        .menu-sub-item {
+            padding-left: 40px !important;
+            font-size: 0.85rem;
+            opacity: 0.85;
+        }
+        .menu-sub-item:hover {
+            opacity: 1;
+        }
+        .menu-btn {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: background 0.2s;
+        }
+        .menu-btn i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        .menu-btn:hover, .menu-btn.active {
+            background: rgba(26,127,207,0.15);
+            color: var(--accent-primary);
+        }
+    </style>
 </head>
 <body>
 
@@ -35,33 +70,139 @@
 <div class="layout">
 
     <!-- Left Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" style="overflow-y: auto;">
         <h2>Navigation</h2>
 
-        <!-- Note: We check if the request endpoint exists so the active state is set correctly. -->
-        <a href="{{ url_for('home.home') }}" class="menu-btn {% if request.endpoint == 'home.home' %}active{% endif %}">
+        <div class="menu-category">M1: Lifecycle & Data</div>
+        <a href="{{ url_for('m1_lifecycle.home') }}" class="menu-btn {% if request.endpoint == 'm1_lifecycle.home' %}active{% endif %}">
             <i class="ph ph-house"></i> Home
         </a>
-        <a href="{{ url_for('home.load_page') }}" class="menu-btn {% if request.endpoint == 'home.load_page' %}active{% endif %}">
+        <a href="{{ url_for('m1_lifecycle.load_page') }}" class="menu-btn {% if request.endpoint == 'm1_lifecycle.load_page' %}active{% endif %}">
             <i class="ph ph-database"></i> Load Data
         </a>
-        <a href="{{ url_for('eda.eda_page') }}" class="menu-btn {% if request.endpoint == 'eda.eda_page' %}active{% endif %}">
+        <a href="{{ url_for('m1_lifecycle.eda_page') }}" class="menu-btn {% if request.endpoint == 'm1_lifecycle.eda_page' %}active{% endif %}">
             <i class="ph ph-chart-bar"></i> EDA
         </a>
-        <a href="{{ url_for('preprocessing.feature_engg_page') }}" class="menu-btn {% if request.endpoint == 'preprocessing.feature_engg_page' %}active{% endif %}">
-            <i class="ph ph-gear"></i> Feature Engg
+
+        <div class="menu-category">M2: Linear Models</div>
+        <a href="{{ url_for('m2_linear_models.feature_scaling_page') }}" class="menu-btn {% if request.endpoint == 'm2_linear_models.feature_scaling_page' %}active{% endif %}">
+            <i class="ph ph-arrows-out-line-horizontal"></i> Feature Scaling
         </a>
-        <a href="{{ url_for('preprocessing.scaling_page') }}" class="menu-btn menu-sub {% if request.endpoint == 'preprocessing.scaling_page' %}active{% endif %}">
-            <i class="ph ph-arrows-out-line-horizontal"></i> Scaling &amp; Standardize
+        <a href="{{ url_for('m2_linear_models.categorical_encoding_page') }}" class="menu-btn {% if request.endpoint == 'm2_linear_models.categorical_encoding_page' %}active{% endif %}">
+            <i class="ph ph-text-aa"></i> Categorical Encoding
         </a>
-        <a href="{{ url_for('preprocessing.encoding_page') }}" class="menu-btn menu-sub {% if request.endpoint == 'preprocessing.encoding_page' %}active{% endif %}">
-            <i class="ph ph-text-aa"></i> Categorical Encodings
+        <a href="{{ url_for('m2_linear_models.missing_value_handling_page') }}" class="menu-btn {% if request.endpoint == 'm2_linear_models.missing_value_handling_page' %}active{% endif %}">
+            <i class="ph ph-eraser"></i> Missing Value Handling
         </a>
-        <a href="{{ url_for('regression.regression_page') }}" class="menu-btn {% if request.endpoint == 'regression.regression_page' %}active{% endif %}">
-            <i class="ph ph-trend-up"></i> Advanced Salary Prediction
+        
+        <a href="{{ url_for('m2_linear_models.linear_regression_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm2_linear_models.linear_regression_page' %}active{% endif %}">
+            <i class="ph ph-trend-up"></i> Linear Regression
         </a>
-        <a href="{{ url_for('predict.predict_page') }}" class="menu-btn {% if request.endpoint == 'predict.predict_page' %}active{% endif %}">
-            <i class="ph ph-rocket-launch"></i> Predict
+        <a href="{{ url_for('m2_linear_models.normal_equation_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm2_linear_models.normal_equation_page' %}active{% endif %}">
+            <i class="ph ph-math-operations"></i> Normal Equation
+        </a>
+        <a href="{{ url_for('m2_linear_models.gradient_descent_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm2_linear_models.gradient_descent_page' %}active{% endif %}">
+            <i class="ph ph-steps"></i> Gradient Descent
+        </a>
+        <a href="{{ url_for('m2_linear_models.logistic_regression_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm2_linear_models.logistic_regression_page' %}active{% endif %}">
+            <i class="ph ph-function"></i> Logistic Regression
+        </a>
+        <a href="{{ url_for('m2_linear_models.ridge_regression_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm2_linear_models.ridge_regression_page' %}active{% endif %}">
+            <i class="ph ph-git-commit"></i> Ridge Classifier (L2)
+        </a>
+        <a href="{{ url_for('m2_linear_models.lasso_regression_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm2_linear_models.lasso_regression_page' %}active{% endif %}">
+            <i class="ph ph-git-commit"></i> Lasso Classifier (L1)
+        </a>
+        <a href="{{ url_for('m2_linear_models.elastic_net_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm2_linear_models.elastic_net_page' %}active{% endif %}">
+            <i class="ph ph-git-commit"></i> Elastic Net (L1+L2)
+        </a>
+        <a href="{{ url_for('m2_linear_models.softmax_regression_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm2_linear_models.softmax_regression_page' %}active{% endif %}">
+            <i class="ph ph-chart-scatter"></i> Softmax Regression
+        </a>
+        <a href="{{ url_for('m2_linear_models.placement_linear_baseline_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm2_linear_models.placement_linear_baseline_page' %}active{% endif %}">
+            <i class="ph ph-target"></i> Linear Baseline
+        </a>
+
+        <div class="menu-category">M3: Tree Models</div>
+        <a href="{{ url_for('m3_tree_models.decision_tree_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.decision_tree_page' %}active{% endif %}">
+            <i class="ph ph-tree-structure"></i> Decision Tree
+        </a>
+        <a href="{{ url_for('m3_tree_models.tree_pruning_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.tree_pruning_page' %}active{% endif %}">
+            <i class="ph ph-scissors"></i> Tree Pruning
+        </a>
+        <a href="{{ url_for('m3_tree_models.bagging_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.bagging_page' %}active{% endif %}">
+            <i class="ph ph-shopping-bag"></i> Bagging
+        </a>
+        <a href="{{ url_for('m3_tree_models.random_forest_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.random_forest_page' %}active{% endif %}">
+            <i class="ph ph-tree"></i> Random Forest
+        </a>
+        <a href="{{ url_for('m3_tree_models.adaboost_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.adaboost_page' %}active{% endif %}">
+            <i class="ph ph-arrow-circle-up"></i> AdaBoost
+        </a>
+        <a href="{{ url_for('m3_tree_models.gradient_boosting_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.gradient_boosting_page' %}active{% endif %}">
+            <i class="ph ph-rocket"></i> Gradient Boosting
+        </a>
+        <a href="{{ url_for('m3_tree_models.xgboost_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.xgboost_page' %}active{% endif %}">
+            <i class="ph ph-lightning"></i> XGBoost
+        </a>
+        <a href="{{ url_for('m3_tree_models.lightgbm_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.lightgbm_page' %}active{% endif %}">
+            <i class="ph ph-lightbulb"></i> LightGBM
+        </a>
+        <a href="{{ url_for('m3_tree_models.feature_importance_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.feature_importance_page' %}active{% endif %}">
+            <i class="ph ph-star"></i> Feature Importance
+        </a>
+        <a href="{{ url_for('m3_tree_models.placement_tree_models_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm3_tree_models.placement_tree_models_page' %}active{% endif %}">
+            <i class="ph ph-target"></i> Placement Tree Baseline
+        </a>
+
+        <div class="menu-category">M4: Unsupervised</div>
+        <a href="{{ url_for('m4_unsupervised.kmeans_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.kmeans_page' %}active{% endif %}">
+            <i class="ph ph-circles-three"></i> K-Means
+        </a>
+        <a href="{{ url_for('m4_unsupervised.kmeans_plus_plus_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.kmeans_plus_plus_page' %}active{% endif %}">
+            <i class="ph ph-circles-three-plus"></i> K-Means++
+        </a>
+        <a href="{{ url_for('m4_unsupervised.mini_batch_kmeans_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.mini_batch_kmeans_page' %}active{% endif %}">
+            <i class="ph ph-database"></i> Mini-Batch K-Means
+        </a>
+        <a href="{{ url_for('m4_unsupervised.elbow_method_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.elbow_method_page' %}active{% endif %}">
+            <i class="ph ph-chart-line-down"></i> Elbow Method
+        </a>
+        <a href="{{ url_for('m4_unsupervised.silhouette_score_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.silhouette_score_page' %}active{% endif %}">
+            <i class="ph ph-user-focus"></i> Silhouette Score
+        </a>
+        <a href="{{ url_for('m4_unsupervised.hierarchical_clustering_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.hierarchical_clustering_page' %}active{% endif %}">
+            <i class="ph ph-git-branch"></i> Hierarchical Clustering
+        </a>
+        <a href="{{ url_for('m4_unsupervised.linkages_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.linkages_page' %}active{% endif %}">
+            <i class="ph ph-link"></i> Linkages
+        </a>
+        <a href="{{ url_for('m4_unsupervised.dendrogram_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.dendrogram_page' %}active{% endif %}">
+            <i class="ph ph-tree-evergreen"></i> Dendrogram
+        </a>
+        <a href="{{ url_for('m4_unsupervised.dbscan_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.dbscan_page' %}active{% endif %}">
+            <i class="ph ph-dots-nine"></i> DBSCAN
+        </a>
+        <a href="{{ url_for('m4_unsupervised.pca_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.pca_page' %}active{% endif %}">
+            <i class="ph ph-intersect-three"></i> PCA
+        </a>
+        <a href="{{ url_for('m4_unsupervised.tsne_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.tsne_page' %}active{% endif %}">
+            <i class="ph ph-arrows-in"></i> t-SNE
+        </a>
+        <a href="{{ url_for('m4_unsupervised.umap_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.umap_page' %}active{% endif %}">
+            <i class="ph ph-arrows-out"></i> UMAP
+        </a>
+        <a href="{{ url_for('m4_unsupervised.isolation_forest_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.isolation_forest_page' %}active{% endif %}">
+            <i class="ph ph-shield-warning"></i> Isolation Forest
+        </a>
+        <a href="{{ url_for('m4_unsupervised.one_class_svm_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.one_class_svm_page' %}active{% endif %}">
+            <i class="ph ph-shield-check"></i> One-Class SVM
+        </a>
+        <a href="{{ url_for('m4_unsupervised.autoencoder_preview_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.autoencoder_preview_page' %}active{% endif %}">
+            <i class="ph ph-cpu"></i> Autoencoder
+        </a>
+        <a href="{{ url_for('m4_unsupervised.placement_clustering_page') }}" class="menu-btn menu-sub-item {% if request.endpoint == 'm4_unsupervised.placement_clustering_page' %}active{% endif %}">
+            <i class="ph ph-target"></i> Placement Clustering
         </a>
     </aside>
 
@@ -91,7 +232,6 @@
         }
     }
 
-    // Set initial icon based on HTML data-theme
     updateThemeIcon(document.documentElement.getAttribute('data-theme'));
 
     themeToggleBtn.addEventListener('click', () => {

@@ -4,32 +4,27 @@ from flask import Flask
 def create_app():
     app = Flask(__name__)
                 
-    # Load ML pipeline (Pre-trained models to avoid OOM on Render)
+    # Load ML pipeline
     import joblib
-    import os
-    
     models_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Output", "models")
     pipeline_file = os.path.join(models_dir, "ml_pipeline_core.pkl")
     
     if os.path.exists(pipeline_file):
         app.config['ML_PIPELINE'] = joblib.load(pipeline_file)
     else:
-        # Fallback for local development if pkl is missing
-        print("[WARNING] ml_pipeline_core.pkl not found! Falling back to inline training. Render deployments will crash if this happens!")
+        print("[WARNING] ml_pipeline_core.pkl not found! Falling back to inline training.")
         from app.core.ml_pipeline import load_data_and_train
         app.config['ML_PIPELINE'] = load_data_and_train(app.root_path)
 
-    # Register Blueprints
-    from app.features.home.routes import home_bp
-    from app.features.eda.routes import eda_bp
-    from app.features.preprocessing.routes import preprocessing_bp
-    from app.features.predict.routes import predict_bp
-    from app.features.regression.routes import regression_bp
+    # Register Blueprints from the new modular structure
+    from app.features.m1_lifecycle import m1_bp
+    from app.features.m2_linear_models import m2_bp
+    from app.features.m3_tree_models import m3_bp
+    from app.features.m4_unsupervised import m4_bp
 
-    app.register_blueprint(home_bp)
-    app.register_blueprint(eda_bp)
-    app.register_blueprint(preprocessing_bp)
-    app.register_blueprint(predict_bp)
-    app.register_blueprint(regression_bp)
+    app.register_blueprint(m1_bp)
+    app.register_blueprint(m2_bp)
+    app.register_blueprint(m3_bp)
+    app.register_blueprint(m4_bp)
 
     return app

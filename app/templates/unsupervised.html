@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Unsupervised Learning | ML Dashboard{% endblock %}
+
+{% block content %}
+<div class="pred-hero" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #600f34 100%); border-radius: 16px; padding: 36px 32px; margin-bottom: 24px; box-shadow: 0 8px 32px rgba(96, 15, 52, 0.3); position: relative; overflow: hidden;">
+    <div class="pred-hero-inner" style="position:relative; z-index:1;">
+        <div class="pred-hero-badge" style="display:inline-block; background:rgba(255, 160, 196, 0.15); border:1px solid rgba(255, 160, 196, 0.35); color:#ffa0c4; padding:4px 14px; border-radius:20px; font-size:0.78rem; font-weight:600; letter-spacing:0.5px; margin-bottom:12px;">&#128300; Pattern Discovery</div>
+        <h1 style="font-size:1.7rem; font-weight:800; color:white; margin-bottom:10px;">Unsupervised Learning</h1>
+        <p style="font-size:0.92rem; color:#cdd6f4; line-height:1.7; max-width:640px;">
+           Explore how our models group students without using labels! We use <strong>K-Means</strong> and <strong>DBSCAN</strong> for clustering, alongside <strong>PCA</strong> for dimensionality reduction.
+        </p>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <h2>&#128202; K-Means Clustering &amp; PCA</h2>
+    <p style="color:var(--text-secondary); margin-bottom:16px;">
+        The scatter plot below visualizes our high-dimensional student data reduced to 2 Principal Components (PCA). 
+        The colors represent 4 distinct clusters found via K-Means.
+    </p>
+    
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+        <div class="stat-box" style="flex: 1; min-width: 200px; background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center;">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--accent-primary);">{{ silhouette }}</div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 600; margin-top: 4px;">Silhouette Score</div>
+            <p style="font-size: 0.75rem; color: #777; margin-top: 8px; line-height: 1.4;">(Measures cluster cohesion and separation. >0.5 is good)</p>
+        </div>
+        
+        <div class="stat-box" style="flex: 1; min-width: 200px; background: var(--bg-secondary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center;">
+            <div style="font-size: 2rem; font-weight: 800; color: #e74c3c;">{{ dbscan_outliers }}</div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 600; margin-top: 4px;">DBSCAN Outliers</div>
+            <p style="font-size: 0.75rem; color: #777; margin-top: 8px; line-height: 1.4;">(Number of noisy/anomalous profiles detected by DBSCAN)</p>
+        </div>
+    </div>
+    
+    {% if plot_url %}
+    <div style="text-align: center; border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; background: white;">
+        <img src="data:image/png;base64,{{ plot_url }}" alt="PCA Clusters" style="max-width: 100%; height: auto; border-radius: 8px;">
+    </div>
+    {% else %}
+    <p>Plot generation failed.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

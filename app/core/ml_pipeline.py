@@ -1,13 +1,17 @@
 import os
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler, RobustScaler
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression, RidgeClassifier
+from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 import category_encoders as ce
+from xgboost import XGBClassifier
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 
 def load_data_and_train(root_path):
     print("[ML] Starting Advanced Pipeline Training...")
@@ -34,7 +38,7 @@ def load_data_and_train(root_path):
     # Define Multinomial Target
     salary_median = df.loc[df[_TARGET_REG] > 0, _TARGET_REG].median()
     def make_package_tier(salary):
-        if salary < 3.0: # Using 3.0 instead of 0 due to dataset bounds for placed
+        if salary < 3.0:
             return "Not Placed"
         elif salary < salary_median:
             return "Standard Package"
@@ -43,22 +47,19 @@ def load_data_and_train(root_path):
     y_multi = df[_TARGET_REG].apply(make_package_tier)
     
     # 3. Define Advanced Categorical Encoders
-    # Ordinal: CollegeTier
     ordinal_cols = ['CollegeTier']
-    # OHE: Gender, Hostel, HistoryOfBacklogs (Low Cardinality)
     ohe_cols = ['Gender', 'Hostel', 'HistoryOfBacklogs']
-    # Target Encoding: City, Specialisation (High Cardinality)
     target_cols = ['City', 'Specialisation']
-    # Hashing (Pseudo-Embedding): Stream
     hash_cols = ['Stream']
     
     # Define Numeric scalers
+    minmax_cols = ['AptitudeTestScore', 'CodingTestScore']
     clean_num_cols = ['CGPA', 'AttendancePercent']
-    robust_num_cols = [c for c in _feature_cols if c not in (_categorical_cols + clean_num_cols)]
+    robust_num_cols = [c for c in _feature_cols if c not in (_categorical_cols + clean_num_cols + minmax_cols)]
     
     # 4. Build Pipelines for each column type
     clean_pipe = Pipeline([
-        ('imputer', SimpleImputer(strategy='median')),
+        ('imputer', SimpleImputer(strategy='mean', add_indicator=True)),
         ('scaler', StandardScaler())
     ])
     
@@ -66,11 +67,15 @@ def load_data_and_train(root_path):
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', RobustScaler())
     ])
+
+    minmax_pipe = Pipeline([
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler', MinMaxScaler())
+    ])
     
-    # We apply a basic 'most_frequent' imputer before encoding categorical data
     ord_pipe = Pipeline([
         ('imputer', SimpleImputer(strategy='most_frequent')),
-        ('enc', ce.OrdinalEncoder()) # Let it infer or pass mapping if needed
+        ('enc', ce.OrdinalEncoder())
     ])
     
     ohe_pipe = Pipeline([
@@ -85,72 +90,94 @@ def load_data_and_train(root_path):
     
     hash_pipe = Pipeline([
         ('imputer', SimpleImputer(strategy='most_frequent')),
-        ('enc', ce.HashingEncoder(n_components=8)) # Hash into 8 vector dimensions
+        ('enc', ce.HashingEncoder(n_components=8))
     ])
     
     # 5. Assemble the Master Preprocessor
-    # Filter the cols to ensure they exist in _feature_cols
     def filter_existing(cols):
         return [c for c in cols if c in _feature_cols]
 
     preprocessor = ColumnTransformer(transformers=[
         ('num_clean', clean_pipe, filter_existing(clean_num_cols)),
         ('num_robust', robust_pipe, filter_existing(robust_num_cols)),
+        ('num_minmax', minmax_pipe, filter_existing(minmax_cols)),
         ('cat_ord', ord_pipe, filter_existing(ordinal_cols)),
         ('cat_ohe', ohe_pipe, filter_existing(ohe_cols)),
         ('cat_tgt', target_pipe, filter_existing(target_cols)),
         ('cat_hsh', hash_pipe, filter_existing(hash_cols))
-    ], remainder='drop') # Drop anything we missed explicitly
+    ], remainder='drop')
 
     # 6. Train Models
-    rf_clf_model = Pipeline([
-        ('prep', preprocessor),
-        ('clf', RandomForestClassifier(n_estimators=30, max_depth=12, min_samples_leaf=5, random_state=42, n_jobs=-1))
-    ])
-    print("[ML] Training Classification Model (RF)...")
-    rf_clf_model.fit(X, y_cls)
+    print("[ML] Training Classification Models...")
     
-    lr_clf_model = Pipeline([
-        ('prep', preprocessor),
-        ('clf', LogisticRegression(max_iter=1000, random_state=42))
-    ])
-    print("[ML] Training Classification Model (LR)...")
-    lr_clf_model.fit(X, y_cls)
+    rf_clf = Pipeline([('prep', preprocessor), ('clf', RandomForestClassifier(n_estimators=30, max_depth=12, random_state=42, n_jobs=-1))])
+    rf_clf.fit(X, y_cls)
     
-    # Multinomial Classification Model (Softmax)
-    softmax_clf_model = Pipeline([
-        ('prep', preprocessor),
-        ('clf', LogisticRegression(solver="lbfgs", max_iter=1000, random_state=42))
-    ])
-    print("[ML] Training Multinomial Classification Model (Softmax)...")
-    softmax_clf_model.fit(X, y_multi)
+    lr_clf = Pipeline([('prep', preprocessor), ('clf', LogisticRegression(max_iter=1000, random_state=42))])
+    lr_clf.fit(X, y_cls)
     
-    # 7. Regression Model (Trained only on placed students)
+    ridge_clf = Pipeline([('prep', preprocessor), ('clf', LogisticRegression(penalty='l2', max_iter=1000, random_state=42))])
+    ridge_clf.fit(X, y_cls)
+
+    lasso_clf = Pipeline([('prep', preprocessor), ('clf', LogisticRegression(penalty='l1', solver='saga', max_iter=1000, random_state=42))])
+    lasso_clf.fit(X, y_cls)
+
+    elastic_clf = Pipeline([('prep', preprocessor), ('clf', LogisticRegression(penalty='elasticnet', solver='saga', l1_ratio=0.5, max_iter=1000, random_state=42))])
+    elastic_clf.fit(X, y_cls)
+
+    dt_clf = Pipeline([('prep', preprocessor), ('clf', DecisionTreeClassifier(max_depth=10, random_state=42))])
+    dt_clf.fit(X, y_cls)
+
+    gb_clf = Pipeline([('prep', preprocessor), ('clf', GradientBoostingClassifier(n_estimators=50, random_state=42))])
+    gb_clf.fit(X, y_cls)
+
+    xgb_clf = Pipeline([('prep', preprocessor), ('clf', XGBClassifier(n_estimators=50, use_label_encoder=False, eval_metric='logloss', random_state=42))])
+    xgb_clf.fit(X, y_cls)
+    
+    # Multinomial
+    softmax_clf = Pipeline([('prep', preprocessor), ('clf', LogisticRegression(solver="lbfgs", max_iter=1000, random_state=42))])
+    softmax_clf.fit(X, y_multi)
+    
+    # 7. Regression Model
     placed_mask = df[_TARGET_CLASS] == 1
     X_reg = feat_df.loc[placed_mask]
     y_reg = df.loc[placed_mask, _TARGET_REG]
     
-    # We can't use TargetEncoder cleanly for a different target without rebuilding the transformer.
-    # To keep it simple, we'll train the regressor using the same preprocessor (fitted on classification target). 
-    # Warning: TargetEncoder inside preprocessor is fitted on y_cls. Since we fit the pipeline again here,
-    # if we pass y_reg, it will re-fit the TargetEncoder on y_reg, which is perfect!
-    rf_reg_model = Pipeline([
-        ('prep', preprocessor),
-        ('reg', RandomForestRegressor(n_estimators=30, max_depth=12, min_samples_leaf=5, random_state=42, n_jobs=-1))
-    ])
-    print("[ML] Training Regression Model (RF)...")
-    rf_reg_model.fit(X_reg, y_reg)
+    rf_reg = Pipeline([('prep', preprocessor), ('reg', RandomForestRegressor(n_estimators=30, max_depth=12, random_state=42, n_jobs=-1))])
+    rf_reg.fit(X_reg, y_reg)
     
+    # 8. Unsupervised Models
+    print("[ML] Training Unsupervised Models (M4)...")
+    # Use the preprocessor fitted inside the rf_clf pipeline
+    fitted_prep = rf_clf.named_steps['prep']
+    X_trans = fitted_prep.transform(X)
+    
+    pca = PCA(n_components=2, random_state=42)
+    pca_comps = pca.fit_transform(X_trans)
+    
+    kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
+    kmeans.fit(X_trans)
+
     print("[ML] Training Complete!")
     
     return {
         'df': df,
-        'rf_clf': rf_clf_model,
-        'lr_clf': lr_clf_model,
-        'softmax_clf': softmax_clf_model,
-        'rf_reg': rf_reg_model,
         'feature_cols': _feature_cols,
         'numeric_cols': _numeric_cols,
         'categorical_cols': _categorical_cols,
-        'preprocessor': preprocessor
+        'preprocessor': preprocessor,
+        'rf_clf': rf_clf,
+        'lr_clf': lr_clf,
+        'ridge_clf': ridge_clf,
+        'lasso_clf': lasso_clf,
+        'elastic_clf': elastic_clf,
+        'dt_clf': dt_clf,
+        'gb_clf': gb_clf,
+        'xgb_clf': xgb_clf,
+        'softmax_clf': softmax_clf,
+        'rf_reg': rf_reg,
+        'kmeans': kmeans,
+        'pca': pca,
+        'X_trans': X_trans,
+        'pca_comps': pca_comps
     }
