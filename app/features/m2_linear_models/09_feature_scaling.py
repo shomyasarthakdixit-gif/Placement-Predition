@@ -1,92 +1,53 @@
-import io
-import base64
-import pandas as pd
-import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import seaborn as sns
-from flask import render_template, request, current_app
+from flask import render_template
 from . import m2_bp
 
-def _fig_to_b64(fig):
-    buf = io.BytesIO()
-    fig.savefig(buf, format='png', dpi=110, bbox_inches='tight', transparent=False)
-    buf.seek(0)
-    encoded = base64.b64encode(buf.getvalue()).decode('utf-8')
-    plt.close(fig)
-    return encoded
-
-@m2_bp.route('/scaling', methods=['GET', 'POST'])
+@m2_bp.route('/feature_scaling')
 def feature_scaling_page():
-    ml_data = current_app.config['ML_PIPELINE']
-    df = ml_data['df']
-    _numeric_cols = ml_data['numeric_cols']
+    content = r"""
+    <p>Feature scaling is a critical preprocessing step for many machine learning algorithms, especially those that rely on distance metrics (like K-Means) or gradient descent (like Logistic Regression and Neural Networks). It ensures that all features contribute proportionately to the final prediction and speeds up model convergence.</p>
+    <p>Without scaling, a feature with a range of [0, 100,000] would completely dominate a feature with a range of [0, 1].</p>
+    """
     
-    dynamic_plot = None
-    scaled_html = None
-    metrics_html = None
+    math_content = r"""
+    <p><strong>1. Standard Scaler (Z-score Normalization)</strong></p>
+    <p style="text-align:center;">\\[ z = \\frac{x - \\mu}{\\sigma} \\]</p>
+    <p>Centers the data at 0 with a standard deviation of 1. Used in our pipeline for relatively clean, normally distributed numeric columns like CGPA.</p>
+    <hr style="border: 0.5px solid #334155; margin: 20px 0;">
     
-    if request.method == 'POST':
-        col = request.form.get('fe_column')
-        scaler_type = request.form.get('fe_scaler')
-        
-        if col and pd.api.types.is_numeric_dtype(df[col]):
-            from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
-            
-            raw_data = df[[col]].dropna()
-            
-            if scaler_type == 'minmax':
-                scaler = MinMaxScaler()
-            elif scaler_type == 'standard':
-                scaler = StandardScaler()
-            elif scaler_type == 'robust':
-                scaler = RobustScaler()
-            else:
-                scaler = None
-                
-            if scaler:
-                scaled_data = scaler.fit_transform(raw_data)
-                
-                metrics = pd.DataFrame({
-                    'Metric': ['Min', 'Max', 'Mean', 'Std Dev', 'Median', 'IQR'],
-                    'Raw (Before)': [
-                        raw_data[col].min(), raw_data[col].max(), raw_data[col].mean(), 
-                        raw_data[col].std(), raw_data[col].median(), 
-                        raw_data[col].quantile(0.75) - raw_data[col].quantile(0.25)
-                    ],
-                    'Scaled (After)': [
-                        scaled_data.min(), scaled_data.max(), scaled_data.mean(), 
-                        scaled_data.std(), np.median(scaled_data), 
-                        np.percentile(scaled_data, 75) - np.percentile(scaled_data, 25)
-                    ]
-                }).round(4)
-                
-                metrics_html = metrics.to_html(classes="data-table", index=False)
-                
-                sample_df = pd.DataFrame({
-                    'Raw Value': raw_data[col].head(10).values,
-                    f'{scaler_type.capitalize()} Scaled': scaled_data[:10].flatten()
-                }).round(4)
-                scaled_html = sample_df.to_html(classes="data-table", index=False)
-                
-                plt.style.use('dark_background')
-                fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-                fig.patch.set_facecolor('#1e1e2f')
-                axes[0].patch.set_facecolor('#1e1e2f')
-                axes[1].patch.set_facecolor('#1e1e2f')
-                sns.kdeplot(data=raw_data, x=col, fill=True, color='#0f3460', ax=axes[0])
-                axes[0].set_title(f'Before Scaling ({col})', fontweight='bold')
-                
-                sns.kdeplot(scaled_data.flatten(), fill=True, color='#1a7fcf', ax=axes[1])
-                axes[1].set_title(f'After {scaler_type.capitalize()} Scaling', fontweight='bold')
-                axes[1].set_xlabel('Scaled Value')
-                
-                plt.tight_layout()
-                dynamic_plot = _fig_to_b64(fig)
-                
-    return render_template('scaling.html', 
-                           numeric_cols=_numeric_cols,
-                           dynamic_plot=dynamic_plot,
-                           metrics_html=metrics_html,
-                           scaled_html=scaled_html)
+    <p><strong>2. Min-Max Scaler</strong></p>
+    <p style="text-align:center;">\\[ X_{scaled} = \\frac{X - X_{min}}{X_{max} - X_{min}} \\]</p>
+    <p>Scales the data to a fixed range, usually [0, 1]. Used in our pipeline for features strictly bounded like Aptitude and Coding Test Scores.</p>
+    <hr style="border: 0.5px solid #334155; margin: 20px 0;">
+    
+    <p><strong>3. Robust Scaler</strong></p>
+    <p style="text-align:center;">\\[ X_{scaled} = \\frac{X - Q_1}{Q_3 - Q_1} \\]</p>
+    <p>Uses statistics that are robust to outliers (the interquartile range). Applied to features that may have extreme spikes.</p>
+    """
+    
+    application_content = r"""
+    <p>In <code>ml_pipeline.py</code>, we utilize a <code>ColumnTransformer</code> to apply these specific scalers selectively based on the column profile:</p>
+    <ul>
+        <li><strong>StandardScaler</strong> is applied to <code>CGPA</code> and <code>AttendancePercent</code>.</li>
+        <li><strong>MinMaxScaler</strong> is applied to <code>AptitudeTestScore</code> and <code>CodingTestScore</code>.</li>
+        <li><strong>RobustScaler</strong> is used as the default for the remaining continuous variables that may be prone to outliers.</li>
+    </ul>
+    """
+
+
+    from flask import url_for
+    img_url = url_for('m1_lifecycle.serve_plot', filename='FeatureScaling.png')
+    application_content += f'''
+    <div style="background-color: var(--bg-secondary); padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center;">
+        <h4 style="margin-top: 0; text-align: left;">Algorithm Output Visualised</h4>
+        <img src="{img_url}" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color);" alt="FeatureScaling.png">
+    </div>
+    '''
+    return render_template(
+        'educational_concept.html',
+        title="Feature Scaling",
+        subtitle="Bringing features to a common scale for optimal model performance.",
+        icon="ph ph-arrows-out",
+        content=content,
+        math_content=math_content,
+        application_content=application_content
+    )

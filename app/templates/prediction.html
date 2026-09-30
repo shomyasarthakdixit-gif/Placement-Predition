@@ -99,7 +99,7 @@
 <!-- ── Input Form ────────────────────────────────────────────── -->
 <div class="card">
     <h2>&#128203; Student Profile Input</h2>
-    <form method="POST" action="{{ url_for('predict.predict_page') }}" class="pred-form" id="pred-form">
+    <form method="POST" action="{{ url_for('m3_tree_models.random_forest_page') }}" class="pred-form" id="pred-form">
 
         <!-- SECTION: Personal & College Info -->
         <div class="pred-section">
@@ -255,7 +255,7 @@
 <div class="card" style="margin-top: 24px;">
     <h2>&#128193; Batch Prediction</h2>
     <p style="color:var(--text-secondary); margin-bottom:16px;">Upload a CSV file containing multiple student profiles. The model will run inference on all rows and return a CSV with predictions.</p>
-    <form method="POST" action="{{ url_for('predict.batch_predict') }}" enctype="multipart/form-data" class="pred-section" style="padding: 20px;">
+    <form method="POST" action="{{ url_for('m3_tree_models.random_forest_page') }}" enctype="multipart/form-data" class="pred-section" style="padding: 20px;">
         <div class="pred-field" style="margin-bottom: 16px;">
             <label for="model_type_batch">Choose Algorithm for Batch:</label>
             <select name="model_type" id="model_type_batch">

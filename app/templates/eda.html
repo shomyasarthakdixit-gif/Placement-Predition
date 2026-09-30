@@ -76,7 +76,7 @@
     <!-- ── Dynamic EDA Form ──────────────────────────────────── -->
     <div class="card">
         <h2 id="form-title"><i class="ph ph-sliders"></i> Select Graph / Operation</h2>
-        <form method="POST" action="{{ url_for('eda.eda_page') }}" class="eda-form" id="eda-main-form">
+        <form method="POST" action="{{ url_for('m1_lifecycle.eda_page') }}" class="eda-form" id="eda-main-form">
             <input type="hidden" name="analysis_type" id="hidden_analysis_type" value="">
 
             <label for="operation">Select Graph or Operation:</label>
@@ -264,7 +264,7 @@
             {% for plot in static_plots %}
             <div class="plot-card">
                 <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
-                <img src="{{ url_for('eda.serve_plot', filename=plot) }}" alt="{{ plot }}">
+                <img src="{{ url_for('m1_lifecycle.serve_plot', filename=plot) }}" alt="{{ plot }}">
             </div>
             {% endfor %}
         </div>
@@ -278,7 +278,7 @@
             {% for plot in static_plots %}{% if plot in univariate_plots %}
             <div class="plot-card">
                 <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
-                <img src="{{ url_for('eda.serve_plot', filename=plot) }}" alt="{{ plot }}">
+                <img src="{{ url_for('m1_lifecycle.serve_plot', filename=plot) }}" alt="{{ plot }}">
             </div>
             {% endif %}{% endfor %}
         </div>
@@ -292,7 +292,7 @@
             {% for plot in static_plots %}{% if plot in bivariate_plots %}
             <div class="plot-card">
                 <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
-                <img src="{{ url_for('eda.serve_plot', filename=plot) }}" alt="{{ plot }}">
+                <img src="{{ url_for('m1_lifecycle.serve_plot', filename=plot) }}" alt="{{ plot }}">
             </div>
             {% endif %}{% endfor %}
         </div>
@@ -306,7 +306,7 @@
             {% for plot in static_plots %}{% if plot in multivariate_plots %}
             <div class="plot-card">
                 <h4>{{ plot | replace('.png', '') | replace('_', ' ') }}</h4>
-                <img src="{{ url_for('eda.serve_plot', filename=plot) }}" alt="{{ plot }}">
+                <img src="{{ url_for('m1_lifecycle.serve_plot', filename=plot) }}" alt="{{ plot }}">
             </div>
             {% endif %}{% endfor %}
         </div>

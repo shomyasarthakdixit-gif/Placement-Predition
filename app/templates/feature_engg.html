@@ -24,28 +24,28 @@
     <div class="card" style="display: flex; flex-direction: column;">
         <h2 style="font-size: 1.4rem; border-bottom: none; margin-bottom: 10px;"><i class="ph ph-ruler"></i> Scaling &amp; Standardization</h2>
         <p style="flex-grow: 1;">Numeric features are scaled using <strong>StandardScaler</strong> (for Gaussian data like CGPA) and <strong>RobustScaler</strong> (to handle extreme outliers) so distance-based models evaluate them equally.</p>
-        <a href="{{ url_for('preprocessing.scaling_page') }}" class="btn btn-primary" style="align-self: flex-start; margin-top: 10px;">Go to Scaling Dashboard <i class="ph ph-arrow-right"></i></a>
+        <a href="{{ url_for('m2_linear_models.feature_scaling_page') }}" class="btn btn-primary" style="align-self: flex-start; margin-top: 10px;">Go to Scaling Dashboard <i class="ph ph-arrow-right"></i></a>
     </div>
 
     <!-- Target Encoding Card -->
     <div class="card" style="display: flex; flex-direction: column;">
         <h2 style="font-size: 1.4rem; border-bottom: none; margin-bottom: 10px;"><i class="ph ph-target"></i> Target Encoding</h2>
         <p style="flex-grow: 1;">Applied to high-cardinality features like <strong>City</strong> and <strong>Specialisation</strong>. We mathematically replace the category string with the historical average Placement Probability of that category!</p>
-        <a href="{{ url_for('preprocessing.encoding_page') }}" class="btn btn-secondary" style="align-self: flex-start; margin-top: 10px;">Explore Encodings <i class="ph ph-arrow-right"></i></a>
+        <a href="{{ url_for('m2_linear_models.categorical_encoding_page') }}" class="btn btn-secondary" style="align-self: flex-start; margin-top: 10px;">Explore Encodings <i class="ph ph-arrow-right"></i></a>
     </div>
 
     <!-- One-Hot & Ordinal Encoding Card -->
     <div class="card" style="display: flex; flex-direction: column;">
         <h2 style="font-size: 1.4rem; border-bottom: none; margin-bottom: 10px;"><i class="ph ph-git-merge"></i> OHE &amp; Ordinal Encoding</h2>
         <p style="flex-grow: 1;"><strong>One-Hot Encoding</strong> expands low-cardinality nominals (<em>Gender, Hostel</em>) into binary vectors. <strong>Ordinal Encoding</strong> preserves the mathematical hierarchy of <em>CollegeTier</em> (1 > 2 > 3).</p>
-        <a href="{{ url_for('preprocessing.encoding_page') }}" class="btn btn-secondary" style="align-self: flex-start; margin-top: 10px;">Explore Encodings <i class="ph ph-arrow-right"></i></a>
+        <a href="{{ url_for('m2_linear_models.categorical_encoding_page') }}" class="btn btn-secondary" style="align-self: flex-start; margin-top: 10px;">Explore Encodings <i class="ph ph-arrow-right"></i></a>
     </div>
     
     <!-- Embedding/Hashing Card -->
     <div class="card" style="display: flex; flex-direction: column;">
         <h2 style="font-size: 1.4rem; border-bottom: none; margin-bottom: 10px;"><i class="ph ph-hash"></i> Embedding / Hashing</h2>
         <p style="flex-grow: 1;">Applied to <strong>Stream</strong>. We utilize a highly efficient <em>HashingEncoder</em> to map strings into a dense n-dimensional embedding vector, solving the curse of dimensionality without deep learning!</p>
-        <a href="{{ url_for('preprocessing.encoding_page') }}" class="btn btn-secondary" style="align-self: flex-start; margin-top: 10px;">Explore Encodings <i class="ph ph-arrow-right"></i></a>
+        <a href="{{ url_for('m2_linear_models.categorical_encoding_page') }}" class="btn btn-secondary" style="align-self: flex-start; margin-top: 10px;">Explore Encodings <i class="ph ph-arrow-right"></i></a>
     </div>
 
 </div>

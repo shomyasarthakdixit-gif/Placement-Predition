@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier, BaggingClassifier, AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression, RidgeClassifier
 from sklearn.preprocessing import StandardScaler, RobustScaler, MinMaxScaler
@@ -10,7 +10,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 import category_encoders as ce
 from xgboost import XGBClassifier
-from sklearn.cluster import KMeans
+from lightgbm import LGBMClassifier
+from sklearn.cluster import KMeans, MiniBatchKMeans, DBSCAN
+from sklearn.ensemble import IsolationForest
+from sklearn.svm import OneClassSVM
+from sklearn.manifold import TSNE
+import umap
 from sklearn.decomposition import PCA
 
 def load_data_and_train(root_path):
@@ -134,6 +139,15 @@ def load_data_and_train(root_path):
     xgb_clf = Pipeline([('prep', preprocessor), ('clf', XGBClassifier(n_estimators=50, use_label_encoder=False, eval_metric='logloss', random_state=42))])
     xgb_clf.fit(X, y_cls)
     
+    bag_clf = Pipeline([('prep', preprocessor), ('clf', BaggingClassifier(n_estimators=30, random_state=42, n_jobs=-1))])
+    bag_clf.fit(X, y_cls)
+    
+    ada_clf = Pipeline([('prep', preprocessor), ('clf', AdaBoostClassifier(n_estimators=50, random_state=42))])
+    ada_clf.fit(X, y_cls)
+    
+    lgbm_clf = Pipeline([('prep', preprocessor), ('clf', LGBMClassifier(n_estimators=50, random_state=42, n_jobs=-1))])
+    lgbm_clf.fit(X, y_cls)
+    
     # Multinomial
     softmax_clf = Pipeline([('prep', preprocessor), ('clf', LogisticRegression(solver="lbfgs", max_iter=1000, random_state=42))])
     softmax_clf.fit(X, y_multi)
@@ -157,6 +171,29 @@ def load_data_and_train(root_path):
     
     kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
     kmeans.fit(X_trans)
+    
+    mbk = MiniBatchKMeans(n_clusters=4, random_state=42, batch_size=1024, n_init=3)
+    mbk.fit(X_trans)
+    
+    iso = IsolationForest(n_estimators=100, contamination=0.05, random_state=42)
+    iso.fit(X_trans)
+    
+    # Take a sample for computationally expensive algorithms (DBSCAN, OCSVM, TSNE, UMAP)
+    # 50k rows pairwise distances will OOM or freeze.
+    sample_idx = np.random.RandomState(42).choice(X_trans.shape[0], 2000, replace=False)
+    X_sample = X_trans[sample_idx]
+    
+    dbscan = DBSCAN(eps=0.5, min_samples=5)
+    dbscan_labels = dbscan.fit_predict(X_sample)
+    
+    ocsvm = OneClassSVM(nu=0.05, gamma='scale')
+    ocsvm.fit(X_sample)
+    
+    tsne = TSNE(n_components=2, random_state=42, n_jobs=-1)
+    tsne_comps = tsne.fit_transform(X_sample)
+    
+    reducer = umap.UMAP(random_state=42)
+    umap_comps = reducer.fit_transform(X_sample)
 
     print("[ML] Training Complete!")
     
@@ -174,10 +211,20 @@ def load_data_and_train(root_path):
         'dt_clf': dt_clf,
         'gb_clf': gb_clf,
         'xgb_clf': xgb_clf,
+        'bag_clf': bag_clf,
+        'ada_clf': ada_clf,
+        'lgbm_clf': lgbm_clf,
         'softmax_clf': softmax_clf,
         'rf_reg': rf_reg,
         'kmeans': kmeans,
         'pca': pca,
         'X_trans': X_trans,
-        'pca_comps': pca_comps
+        'pca_comps': pca_comps,
+        'mbk': mbk,
+        'iso': iso,
+        'X_sample': X_sample,
+        'dbscan_labels': dbscan_labels,
+        'ocsvm': ocsvm,
+        'tsne_comps': tsne_comps,
+        'umap_comps': umap_comps
     }

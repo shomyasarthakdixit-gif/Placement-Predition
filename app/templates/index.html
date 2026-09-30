@@ -13,8 +13,8 @@
             featuring interactive EDA, feature engineering, and predictive modelling on <strong>50,000 student records</strong>.
         </p>
         <div class="dash-hero-actions">
-            <a href="{{ url_for('home.load_page') }}" class="btn btn-primary"><i class="ph ph-database"></i> Explore Dataset</a>
-            <a href="{{ url_for('eda.eda_page') }}" class="btn btn-secondary"><i class="ph ph-chart-bar"></i> Run EDA</a>
+            <a href="{{ url_for('m1_lifecycle.load_page') }}" class="btn btn-primary"><i class="ph ph-database"></i> Explore Dataset</a>
+            <a href="{{ url_for('m1_lifecycle.eda_page') }}" class="btn btn-secondary"><i class="ph ph-chart-bar"></i> Run EDA</a>
         </div>
     </div>
     <div class="dash-hero-visual">
@@ -178,22 +178,22 @@
 <div class="card fade-in delay-4">
     <h2><i class="ph ph-lightning"></i> Quick Actions</h2>
     <div class="quick-actions">
-        <a href="{{ url_for('home.load_page') }}" class="qa-card">
+        <a href="{{ url_for('m1_lifecycle.load_page') }}" class="qa-card">
             <div class="qa-icon"><i class="ph ph-database"></i></div>
             <strong>Load Data</strong>
             <small>Preview first 100 rows</small>
         </a>
-        <a href="{{ url_for('home.full_data_page') }}" class="qa-card">
+        <a href="{{ url_for('m1_lifecycle.full_data_page') }}" class="qa-card">
             <div class="qa-icon"><i class="ph ph-table"></i></div>
             <strong>Full Dataset</strong>
             <small>View all 50K records</small>
         </a>
-        <a href="{{ url_for('eda.eda_page') }}" class="qa-card">
+        <a href="{{ url_for('m1_lifecycle.eda_page') }}" class="qa-card">
             <div class="qa-icon"><i class="ph ph-chart-bar"></i></div>
             <strong>Run EDA</strong>
             <small>Explore & visualise data</small>
         </a>
-        <a href="{{ url_for('preprocessing.feature_engg_page') }}" class="qa-card">
+        <a href="{{ url_for('m2_linear_models.feature_scaling_page') }}" class="qa-card">
             <div class="qa-icon"><i class="ph ph-gear-six"></i></div>
             <strong>Feature Engg</strong>
             <small>Transform features</small>

@@ -6,6 +6,9 @@
     <title>{% block title %}ML Dashboard{% endblock %}</title>
     <!-- Phosphor Icons for premium aesthetic -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
         const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -37,6 +40,9 @@
             border-radius: 8px;
             margin-bottom: 4px;
             transition: background 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .menu-btn i {
             margin-right: 12px;

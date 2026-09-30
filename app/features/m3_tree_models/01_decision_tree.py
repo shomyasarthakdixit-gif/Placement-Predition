@@ -10,12 +10,12 @@ def decision_tree_page():
     result = None
     if request.method == 'POST':
         result = run_prediction_for_model(request.form, 'dt')
-        
     return render_template(
         'model_classification.html',
         model_title="Decision Tree Classifier",
         model_desc="Tree-based model with non-linear decision boundaries.",
         action_url=url_for('m3_tree_models.decision_tree_page'),
         result=result,
+        plot_url=url_for('m1_lifecycle.serve_plot', filename='DecisionTreePlot.png'),
         **dropdowns
     )

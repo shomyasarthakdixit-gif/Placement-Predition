@@ -12,12 +12,12 @@ def logistic_regression_page():
     
     if request.method == 'POST':
         result = run_prediction_for_model(request.form, 'lr')
-        
     return render_template(
         'model_classification.html',
         model_title="Logistic Regression",
         model_desc="Standard binary classification using the logistic sigmoid function.",
         action_url=url_for('m2_linear_models.logistic_regression_page'),
         result=result,
+        plot_url=url_for('m1_lifecycle.serve_plot', filename='LogisticRegression.png'),
         **dropdowns
     )

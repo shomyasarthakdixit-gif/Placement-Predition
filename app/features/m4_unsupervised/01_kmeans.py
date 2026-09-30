@@ -35,6 +35,11 @@ def kmeans_page():
             </div>
         </div>
         <p style="margin-top:20px;">Silhouette Score measures how similar an object is to its own cluster compared to other clusters. Values range from -1 to 1.</p>
+        
+        <div style="background-color: var(--bg-secondary); padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center;">
+            <h4 style="margin-top: 0; text-align: left;">Algorithm Output Visualised</h4>
+            <img src="{{ url_for('m1_lifecycle.serve_plot', filename='KMeansScatter.png') }}" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color);" alt="KMeansScatter.png">
+        </div>
     </div>
     {% endblock %}
     '''

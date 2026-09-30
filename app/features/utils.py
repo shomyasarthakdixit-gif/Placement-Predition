@@ -16,6 +16,9 @@ def run_prediction_for_model(form, model_type):
         'dt': ml_data.get('dt_clf'),
         'gb': ml_data.get('gb_clf'),
         'xgb': ml_data.get('xgb_clf'),
+        'bag': ml_data.get('bag_clf'),
+        'ada': ml_data.get('ada_clf'),
+        'lgbm': ml_data.get('lgbm_clf'),
         'softmax': ml_data.get('softmax_clf')
     }
     rf_reg_model = ml_data.get('rf_reg')

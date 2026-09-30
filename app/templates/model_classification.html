@@ -12,6 +12,15 @@
     </div>
 </div>
 
+<!-- ── Optional Model Plot ──────────────────────────────────── -->
+{% if plot_url %}
+<div class="card" style="margin-top: 20px; text-align: center; border-left: 4px solid var(--accent-primary);">
+    <h3 style="margin-top: 0;"><i class="ph ph-image"></i> Model Visualization</h3>
+    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">Visual representation of the algorithm trained on our 50,000-row placement dataset.</p>
+    <img src="{{ plot_url }}" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color);" alt="Model Plot">
+</div>
+{% endif %}
+
 <!-- ── Result Card (shown after POST) ───────────────────────── -->
 {% if result %}
 <div class="result-card {% if result.error %}result-error{% elif result.softmax %}{% if result.top_class != 'Not Placed' %}result-placed{% else %}result-notplaced{% endif %}{% elif result.placed %}result-placed{% else %}result-notplaced{% endif %}"

@@ -10,3 +10,4 @@ joblib
 xgboost
 shap
 umap-learn
+lightgbm
